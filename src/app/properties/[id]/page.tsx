@@ -9,10 +9,14 @@ interface Property {
     description: string
     price: number
     location: string
+    area: string
     bedrooms: number
     bathrooms: number
     propertyType: string
     status: string
+    size?: number
+    frontSize?: number
+    backSize?: number
     imageUrl?: string
 }
 
@@ -138,7 +142,7 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
                         </div>
                         <div className="property-location" style={{ fontSize: '1.125rem' }}>
                             <span>📍</span>
-                            <span>{property.location}</span>
+                            <span>{property.area}, {property.location}</span>
                         </div>
                     </div>
                     <button
@@ -152,18 +156,34 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
                 <p className="detail-description">{property.description}</p>
 
                 <div className="detail-specs">
-                    <div className="spec-item">
-                        <div className="spec-label">Bedrooms</div>
-                        <div className="spec-value">🛏️ {property.bedrooms}</div>
-                    </div>
-                    <div className="spec-item">
-                        <div className="spec-label">Bathrooms</div>
-                        <div className="spec-value">🚿 {property.bathrooms}</div>
-                    </div>
+                    {property.propertyType !== 'Plot' && (
+                        <>
+                            <div className="spec-item">
+                                <div className="spec-label">Bedrooms</div>
+                                <div className="spec-value">🛏️ {property.bedrooms}</div>
+                            </div>
+                            <div className="spec-item">
+                                <div className="spec-label">Bathrooms</div>
+                                <div className="spec-value">🚿 {property.bathrooms}</div>
+                            </div>
+                        </>
+                    )}
                     <div className="spec-item">
                         <div className="spec-label">Property Type</div>
                         <div className="spec-value">🏠 {property.propertyType}</div>
                     </div>
+                    {property.size && (
+                        <div className="spec-item">
+                            <div className="spec-label">Total Size</div>
+                            <div className="spec-value">📐 {property.size.toLocaleString()} sq ft</div>
+                        </div>
+                    )}
+                    {property.frontSize && property.backSize && (
+                        <div className="spec-item">
+                            <div className="spec-label">Dimensions</div>
+                            <div className="spec-value">📏 {property.frontSize} x {property.backSize} ft</div>
+                        </div>
+                    )}
                 </div>
             </main>
         </div>

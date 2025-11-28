@@ -12,16 +12,20 @@ datasource db {
 }
 
 model Property {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  price       Float
-  location    String
-  bedrooms    Int
-  bathrooms   Int
-  propertyType String
-  status      String   @default("AVAILABLE") // AVAILABLE, SOLD
-  imageUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  price        Float
+  location     String
+  area         String   // Neighborhood/area for filtering
+  bedrooms     Int
+  bathrooms    Int
+  propertyType String   // Plot, House, Flat, Rental
+  status       String   @default("AVAILABLE") // AVAILABLE, SOLD
+  size         Float?   // Total size in sq ft (can be auto-calculated from front * back)
+  frontSize    Float?   // Front dimension
+  backSize     Float?   // Back dimension
+  imageUrl     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

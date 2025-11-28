@@ -6,10 +6,14 @@ interface PropertyCardProps {
     description: string
     price: number
     location: string
+    area: string
     bedrooms: number
     bathrooms: number
     propertyType: string
     status: string
+    size?: number
+    frontSize?: number
+    backSize?: number
     imageUrl?: string
 }
 
@@ -41,25 +45,35 @@ export default function PropertyCard(props: PropertyCardProps) {
                 <p className="property-description">{props.description}</p>
 
                 <div className="property-details">
-                    <div className="property-detail">
-                        <span className="property-detail-icon">🛏️</span>
-                        <span>{props.bedrooms} Beds</span>
-                    </div>
-                    <div className="property-detail">
-                        <span className="property-detail-icon">🚿</span>
-                        <span>{props.bathrooms} Baths</span>
-                    </div>
+                    {props.propertyType !== 'Plot' && (
+                        <>
+                            <div className="property-detail">
+                                <span className="property-detail-icon">🛏️</span>
+                                <span>{props.bedrooms} Beds</span>
+                            </div>
+                            <div className="property-detail">
+                                <span className="property-detail-icon">🚿</span>
+                                <span>{props.bathrooms} Baths</span>
+                            </div>
+                        </>
+                    )}
                     <div className="property-detail">
                         <span className="property-detail-icon">🏠</span>
                         <span>{props.propertyType}</span>
                     </div>
+                    {props.size && (
+                        <div className="property-detail">
+                            <span className="property-detail-icon">📐</span>
+                            <span>{props.size.toLocaleString()} sq ft</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="property-footer">
                     <div className="property-price">{formatPrice(props.price)}</div>
                     <div className="property-location">
                         <span>📍</span>
-                        <span>{props.location}</span>
+                        <span>{props.area}, {props.location}</span>
                     </div>
                 </div>
             </div>

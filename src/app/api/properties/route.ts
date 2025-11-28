@@ -6,6 +6,8 @@ export async function GET(request: Request) {
     const status = searchParams.get('status')
     const minPrice = searchParams.get('minPrice')
     const maxPrice = searchParams.get('maxPrice')
+    const area = searchParams.get('area')
+    const propertyType = searchParams.get('propertyType')
 
     const where: any = {}
 
@@ -23,6 +25,14 @@ export async function GET(request: Request) {
         where.price = { ...where.price, lte: parseFloat(maxPrice) }
     }
 
+    if (area && area !== 'ALL') {
+        where.area = area
+    }
+
+    if (propertyType && propertyType !== 'ALL') {
+        where.propertyType = propertyType
+    }
+
     try {
         const properties = await prisma.property.findMany({
             where,
@@ -34,9 +44,29 @@ export async function GET(request: Request) {
     }
 }
 
+// GET distinct areas for filter dropdown
+export async function OPTIONS() {
+    try {
+        const areas = await prisma.property.findMany({
+            select: { area: true },
+            distinct: ['area'],
+            orderBy: { area: 'asc' }
+        })
+        return NextResponse.json(areas.map(a => a.area))
+    } catch (error) {
+        return NextResponse.json({ error: 'Failed to fetch areas' }, { status: 500 })
+    }
+}
+
 export async function POST(request: Request) {
     try {
         const body = await request.json()
+
+        // Auto-calculate size if frontSize and backSize are provided but size is not
+        if (body.frontSize && body.backSize && !body.size) {
+            body.size = body.frontSize * body.backSize
+        }
+
         const property = await prisma.property.create({
             data: body
         })

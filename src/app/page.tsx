@@ -9,21 +9,40 @@ interface Property {
   description: string
   price: number
   location: string
+  area: string
   bedrooms: number
   bathrooms: number
   propertyType: string
   status: string
+  size?: number
+  frontSize?: number
+  backSize?: number
   imageUrl?: string
 }
 
+const PROPERTY_TYPES = ['Plot', 'House', 'Flat', 'Rental']
+
 export default function Home() {
   const [properties, setProperties] = useState<Property[]>([])
+  const [areas, setAreas] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState({
     status: 'AVAILABLE',
     minPrice: '',
     maxPrice: '',
+    area: 'ALL',
+    propertyType: 'ALL',
   })
+
+  const fetchAreas = async () => {
+    try {
+      const response = await fetch('/api/areas')
+      const data = await response.json()
+      setAreas(data)
+    } catch (error) {
+      console.error('Failed to fetch areas:', error)
+    }
+  }
 
   const fetchProperties = async () => {
     setLoading(true)
@@ -38,6 +57,12 @@ export default function Home() {
     if (filters.maxPrice) {
       params.append('maxPrice', filters.maxPrice)
     }
+    if (filters.area && filters.area !== 'ALL') {
+      params.append('area', filters.area)
+    }
+    if (filters.propertyType && filters.propertyType !== 'ALL') {
+      params.append('propertyType', filters.propertyType)
+    }
 
     try {
       const response = await fetch(`/api/properties?${params.toString()}`)
@@ -51,6 +76,7 @@ export default function Home() {
   }
 
   useEffect(() => {
+    fetchAreas()
     fetchProperties()
   }, [])
 
@@ -79,6 +105,38 @@ export default function Home() {
         <div className="filter-section">
           <h2 className="filter-title">Find Your Dream Property</h2>
           <div className="filter-grid">
+            <div className="filter-group">
+              <label htmlFor="area" className="filter-label">Area</label>
+              <select
+                id="area"
+                name="area"
+                className="filter-select"
+                value={filters.area}
+                onChange={handleFilterChange}
+              >
+                <option value="ALL">All Areas</option>
+                {areas.map((area) => (
+                  <option key={area} value={area}>{area}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="filter-group">
+              <label htmlFor="propertyType" className="filter-label">Property Type</label>
+              <select
+                id="propertyType"
+                name="propertyType"
+                className="filter-select"
+                value={filters.propertyType}
+                onChange={handleFilterChange}
+              >
+                <option value="ALL">All Types</option>
+                {PROPERTY_TYPES.map((type) => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
             <div className="filter-group">
               <label htmlFor="status" className="filter-label">Status</label>
               <select
