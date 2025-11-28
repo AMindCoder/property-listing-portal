@@ -21,7 +21,7 @@ async function main() {
             size: 1200,
             frontSize: 40,
             backSize: 30,
-            imageUrl: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&h=400&fit=crop'],
         },
         {
             title: 'Cozy Family House',
@@ -36,7 +36,7 @@ async function main() {
             size: 2400,
             frontSize: 60,
             backSize: 40,
-            imageUrl: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600&h=400&fit=crop'],
         },
         {
             title: 'Luxury Villa',
@@ -51,7 +51,7 @@ async function main() {
             size: 5500,
             frontSize: 100,
             backSize: 55,
-            imageUrl: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&h=400&fit=crop'],
         },
         {
             title: 'Downtown Studio',
@@ -66,7 +66,7 @@ async function main() {
             size: 550,
             frontSize: 25,
             backSize: 22,
-            imageUrl: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop'],
         },
         {
             title: 'Suburban Home',
@@ -81,7 +81,7 @@ async function main() {
             size: 2800,
             frontSize: 70,
             backSize: 40,
-            imageUrl: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=600&h=400&fit=crop'],
         },
         {
             title: 'Beachfront Condo',
@@ -96,7 +96,7 @@ async function main() {
             size: 1400,
             frontSize: 40,
             backSize: 35,
-            imageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&h=400&fit=crop'],
         },
         {
             title: 'Mountain Retreat',
@@ -111,7 +111,7 @@ async function main() {
             size: 1800,
             frontSize: 45,
             backSize: 40,
-            imageUrl: 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=600&h=400&fit=crop'],
         },
         {
             title: 'Historic Brownstone',
@@ -126,7 +126,7 @@ async function main() {
             size: 3200,
             frontSize: 80,
             backSize: 40,
-            imageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=600&h=400&fit=crop'],
         },
         {
             title: 'Penthouse Suite',
@@ -141,7 +141,7 @@ async function main() {
             size: 2800,
             frontSize: 70,
             backSize: 40,
-            imageUrl: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=600&h=400&fit=crop'],
         },
         {
             title: 'Lakeside Cottage',
@@ -156,7 +156,7 @@ async function main() {
             size: 1100,
             frontSize: 44,
             backSize: 25,
-            imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=400&fit=crop'],
         },
         {
             title: 'Urban Loft',
@@ -171,7 +171,7 @@ async function main() {
             size: 1600,
             frontSize: 50,
             backSize: 32,
-            imageUrl: 'https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=600&h=400&fit=crop'],
         },
         {
             title: 'Ranch Estate',
@@ -186,7 +186,7 @@ async function main() {
             size: 4500,
             frontSize: 90,
             backSize: 50,
-            imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&h=400&fit=crop'],
         },
         {
             title: 'Garden Apartment',
@@ -201,7 +201,7 @@ async function main() {
             size: 750,
             frontSize: 30,
             backSize: 25,
-            imageUrl: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop'],
         },
         {
             title: 'Smart Home Villa',
@@ -216,7 +216,7 @@ async function main() {
             size: 3600,
             frontSize: 80,
             backSize: 45,
-            imageUrl: 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=600&h=400&fit=crop'],
         },
         {
             title: 'Victorian Manor',
@@ -231,7 +231,7 @@ async function main() {
             size: 4800,
             frontSize: 80,
             backSize: 60,
-            imageUrl: 'https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?w=600&h=400&fit=crop'],
         },
         {
             title: 'Minimalist Townhouse',
@@ -246,7 +246,7 @@ async function main() {
             size: 2200,
             frontSize: 55,
             backSize: 40,
-            imageUrl: 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=600&h=400&fit=crop'],
         },
         {
             title: 'Eco-Friendly Home',
@@ -261,7 +261,7 @@ async function main() {
             size: 2000,
             frontSize: 50,
             backSize: 40,
-            imageUrl: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=600&h=400&fit=crop'],
         },
         {
             title: 'Skyline View Apartment',
@@ -276,7 +276,7 @@ async function main() {
             size: 1300,
             frontSize: 50,
             backSize: 26,
-            imageUrl: 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=600&h=400&fit=crop'],
         },
         {
             title: 'Prime Commercial Plot',
@@ -291,7 +291,7 @@ async function main() {
             size: 8000,
             frontSize: 100,
             backSize: 80,
-            imageUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&h=400&fit=crop'],
         },
         {
             title: 'Residential Plot',
@@ -306,7 +306,7 @@ async function main() {
             size: 12000,
             frontSize: 120,
             backSize: 100,
-            imageUrl: 'https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?w=600&h=400&fit=crop',
+            images: [ 'https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?w=600&h=400&fit=crop'],
         },
     ]
 

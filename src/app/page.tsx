@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import PropertyCard from './components/PropertyCard'
+import Sidebar from './components/Sidebar'
 
 interface Property {
   id: string
@@ -17,10 +18,8 @@ interface Property {
   size?: number
   frontSize?: number
   backSize?: number
-  imageUrl?: string
+  images: string[]
 }
-
-const PROPERTY_TYPES = ['Plot', 'House', 'Flat', 'Rental']
 
 export default function Home() {
   const [properties, setProperties] = useState<Property[]>([])
@@ -65,7 +64,7 @@ export default function Home() {
     }
 
     try {
-      const response = await fetch(`/api/properties?${params.toString()}`)
+      const response = await fetch(`/api/properties?${params.toString()}&t=${Date.now()}`, { cache: 'no-store' })
       const data = await response.json()
       setProperties(data)
     } catch (error) {
@@ -97,111 +96,38 @@ export default function Home() {
         <div className="container">
           <div className="header-content">
             <h1 className="logo">PropertyHub</h1>
+            <a href="/admin" className="btn btn-secondary">Admin Console</a>
           </div>
         </div>
       </header>
 
-      <main className="container">
-        <div className="filter-section">
-          <h2 className="filter-title">Find Your Dream Property</h2>
-          <div className="filter-grid">
-            <div className="filter-group">
-              <label htmlFor="area" className="filter-label">Area</label>
-              <select
-                id="area"
-                name="area"
-                className="filter-select"
-                value={filters.area}
-                onChange={handleFilterChange}
-              >
-                <option value="ALL">All Areas</option>
-                {areas.map((area) => (
-                  <option key={area} value={area}>{area}</option>
-                ))}
-              </select>
-            </div>
+      <main className="container main-layout">
+        <Sidebar
+          filters={filters}
+          areas={areas}
+          onFilterChange={handleFilterChange}
+          onApplyFilters={applyFilters}
+        />
 
-            <div className="filter-group">
-              <label htmlFor="propertyType" className="filter-label">Property Type</label>
-              <select
-                id="propertyType"
-                name="propertyType"
-                className="filter-select"
-                value={filters.propertyType}
-                onChange={handleFilterChange}
-              >
-                <option value="ALL">All Types</option>
-                {PROPERTY_TYPES.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
+        <div className="content-area">
+          {loading ? (
+            <div className="loading">Loading properties...</div>
+          ) : properties.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">🏚️</div>
+              <h3 className="empty-title">No properties found</h3>
+              <p className="empty-message">Try adjusting your filters to see more results.</p>
             </div>
-
-            <div className="filter-group">
-              <label htmlFor="status" className="filter-label">Status</label>
-              <select
-                id="status"
-                name="status"
-                className="filter-select"
-                value={filters.status}
-                onChange={handleFilterChange}
-              >
-                <option value="AVAILABLE">Available</option>
-                <option value="SOLD">Sold</option>
-                <option value="ALL">All</option>
-              </select>
+          ) : (
+            <div className="property-grid">
+              {properties.map((property) => (
+                <PropertyCard key={property.id} {...property} />
+              ))}
             </div>
-
-            <div className="filter-group">
-              <label htmlFor="minPrice" className="filter-label">Min Price</label>
-              <input
-                id="minPrice"
-                type="number"
-                name="minPrice"
-                placeholder="$0"
-                className="filter-input"
-                value={filters.minPrice}
-                onChange={handleFilterChange}
-              />
-            </div>
-
-            <div className="filter-group">
-              <label htmlFor="maxPrice" className="filter-label">Max Price</label>
-              <input
-                id="maxPrice"
-                type="number"
-                name="maxPrice"
-                placeholder="Any"
-                className="filter-input"
-                value={filters.maxPrice}
-                onChange={handleFilterChange}
-              />
-            </div>
-
-            <div className="filter-group" style={{ alignSelf: 'flex-end' }}>
-              <button className="btn" onClick={applyFilters}>
-                Apply Filters
-              </button>
-            </div>
-          </div>
+          )}
         </div>
-
-        {loading ? (
-          <div className="loading">Loading properties...</div>
-        ) : properties.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">🏚️</div>
-            <h3 className="empty-title">No properties found</h3>
-            <p className="empty-message">Try adjusting your filters to see more results.</p>
-          </div>
-        ) : (
-          <div className="property-grid">
-            {properties.map((property) => (
-              <PropertyCard key={property.id} {...property} />
-            ))}
-          </div>
-        )}
       </main>
     </div>
   )
 }
+

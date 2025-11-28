@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
@@ -37,5 +39,25 @@ export async function PUT(
     } catch (error) {
         console.error('API Error:', error)
         return NextResponse.json({ error: 'Failed to update property' }, { status: 500 })
+    }
+}
+
+export async function DELETE(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params
+        console.log(`[API] Attempting to delete property with ID: ${id}`)
+
+        const deleted = await prisma.property.delete({
+            where: { id }
+        })
+
+        console.log(`[API] Successfully deleted property: ${id}`)
+        return NextResponse.json({ message: 'Property deleted successfully', deleted })
+    } catch (error) {
+        console.error('[API] Error deleting property:', error)
+        return NextResponse.json({ error: 'Failed to delete property', details: String(error) }, { status: 500 })
     }
 }

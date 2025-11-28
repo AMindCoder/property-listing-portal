@@ -14,7 +14,7 @@ interface PropertyCardProps {
     size?: number
     frontSize?: number
     backSize?: number
-    imageUrl?: string
+    images: string[]
 }
 
 export default function PropertyCard(props: PropertyCardProps) {
@@ -30,7 +30,7 @@ export default function PropertyCard(props: PropertyCardProps) {
     return (
         <Link href={`/properties/${props.id}`} className="property-card">
             <img
-                src={props.imageUrl || 'https://placehold.co/600x400/1a1a2e/7f8c8d?text=Property'}
+                src={props.images?.[0] || 'https://placehold.co/600x400/1a1a2e/7f8c8d?text=Property'}
                 alt={props.title}
                 className="property-image"
             />

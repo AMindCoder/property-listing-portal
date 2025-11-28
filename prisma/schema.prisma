@@ -25,7 +25,7 @@ model Property {
   size         Float?   // Total size in sq ft (can be auto-calculated from front * back)
   frontSize    Float?   // Front dimension
   backSize     Float?   // Back dimension
-  imageUrl     String?
+  images       String[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
