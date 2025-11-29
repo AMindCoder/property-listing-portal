@@ -44,7 +44,7 @@ export default function LoginPage() {
                         <p className="text-[var(--text-secondary)] text-sm">Sign in to access the dashboard</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="filter-section space-y-0">
+                    <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="filter-group">
                             <label htmlFor="username" className="filter-label">
                                 Username
@@ -90,7 +90,7 @@ export default function LoginPage() {
                         </button>
 
                         <div className="text-center mt-6">
-                            <Link href="/" className="text-sm text-[var(--text-secondary)] hover:text-[var(--copper-400)] transition-colors inline-flex items-center gap-1">
+                            <Link href="/" className="text-sm text-white hover:text-[var(--copper-400)] transition-colors inline-flex items-center gap-1.5 justify-center underline underline-offset-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M19 12H5M12 19l-7-7 7-7" />
                                 </svg>
