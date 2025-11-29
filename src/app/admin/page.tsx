@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import AdminPropertyCard from '../components/AdminPropertyCard'
 
@@ -17,6 +18,7 @@ interface Property {
 }
 
 export default function AdminDashboard() {
+    const router = useRouter()
     const [properties, setProperties] = useState<Property[]>([])
     const [loading, setLoading] = useState(true)
     const [menuOpen, setMenuOpen] = useState(false)
@@ -60,6 +62,10 @@ export default function AdminDashboard() {
         }
     }
 
+    const handleLogout = () => {
+        router.push('/')
+    }
+
     return (
         <div className="container">
             <header className="header">
@@ -67,42 +73,56 @@ export default function AdminDashboard() {
                     <Link href="/" className="logo">PropertyHub</Link>
 
                     {/* Desktop Menu */}
-                    <div className="hidden md:flex gap-4">
+                    <div className="admin-header-buttons hidden md:flex">
                         <Link href="/" className="btn btn-secondary">View Site</Link>
                         <Link href="/admin/add" className="btn btn-primary">Add Property</Link>
+                        <button onClick={handleLogout} className="btn btn-secondary">Logout</button>
                     </div>
 
                     {/* Mobile Burger Menu */}
                     <button
                         onClick={() => setMenuOpen(!menuOpen)}
-                        className="md:hidden p-2 text-[var(--copper-400)] hover:text-[var(--copper-500)] transition-colors"
+                        className="admin-burger md:hidden"
                         aria-label="Toggle menu"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <line x1="3" y1="12" x2="21" y2="12"></line>
-                            <line x1="3" y1="6" x2="21" y2="6"></line>
-                            <line x1="3" y1="18" x2="21" y2="18"></line>
-                        </svg>
+                        {menuOpen ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                        )}
                     </button>
                 </div>
 
                 {/* Mobile Menu Dropdown */}
                 {menuOpen && (
-                    <div className="md:hidden bg-[var(--bg-secondary)] border-t border-[var(--border-medium)] py-4 px-4 space-y-2">
+                    <div className="admin-mobile-menu md:hidden">
                         <Link
                             href="/"
-                            className="block btn btn-secondary text-center"
+                            className="btn btn-secondary"
                             onClick={() => setMenuOpen(false)}
                         >
                             View Site
                         </Link>
                         <Link
                             href="/admin/add"
-                            className="block btn btn-primary text-center"
+                            className="btn btn-primary"
                             onClick={() => setMenuOpen(false)}
                         >
                             Add Property
                         </Link>
+                        <button
+                            onClick={() => { setMenuOpen(false); handleLogout(); }}
+                            className="btn btn-secondary"
+                        >
+                            Logout
+                        </button>
                     </div>
                 )}
             </header>

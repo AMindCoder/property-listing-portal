@@ -109,6 +109,18 @@ export default function Home() {
     fetchProperties()
   }
 
+  const clearFilters = () => {
+    setFilters({
+      status: 'AVAILABLE',
+      minPrice: '',
+      maxPrice: '',
+      area: 'ALL',
+      propertyType: 'ALL',
+    })
+    // Fetch will be triggered by the next Apply click or effect
+    setTimeout(() => fetchProperties(), 0)
+  }
+
   return (
     <div>
       <header className="header">
@@ -151,6 +163,7 @@ export default function Home() {
           areas={areas}
           onFilterChange={handleFilterChange}
           onApplyFilters={applyFilters}
+          onClearFilters={clearFilters}
           isCollapsed={isSidebarCollapsed}
         />
 

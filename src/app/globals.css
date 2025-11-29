@@ -872,6 +872,30 @@ a.logo {
   grid-template-columns: 300px 1fr;
 }
 
+/* Utility Classes for Responsive Design */
+.hidden {
+  display: none !important;
+}
+
+.block {
+  display: block;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* Desktop visibility utilities */
+@media (min-width: 768px) {
+  .md\:flex {
+    display: flex !important;
+  }
+
+  .md\:hidden {
+    display: none !important;
+  }
+}
+
 /* Mobile Sidebar */
 @media (max-width: 768px) {
   .mobile-nav-toggle {
@@ -911,16 +935,16 @@ a.logo {
     z-index: 100;
   }
 
-  /* On mobile, we use the 'collapsed' class to mean 'OPEN' (visible) 
+  /* On mobile, we use the 'collapsed' class to mean 'OPEN' (visible)
      because the default state (no class) is hidden (-100%).
      Wait, the state logic in page.tsx is:
      isSidebarCollapsed = true (default for mobile)
-     
+
      If isSidebarCollapsed is true, we add 'collapsed' class.
      So:
      Default (true) -> .sidebar.collapsed -> Should be HIDDEN.
      Toggle (false) -> .sidebar -> Should be VISIBLE.
-     
+
      Let's match that logic.
   */
 
@@ -933,4 +957,260 @@ a.logo {
   .main-layout.sidebar-collapsed {
     grid-template-columns: 1fr;
   }
+}
+
+/* Admin Header Styles */
+.admin-header-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-header-buttons .btn {
+  padding: 0.625rem 1.25rem;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+/* Mobile menu dropdown for admin */
+.admin-mobile-menu {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-medium);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-mobile-menu .btn {
+  width: 100%;
+  text-align: center;
+  padding: 0.75rem 1rem;
+}
+
+/* Admin burger menu button */
+.admin-burger {
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--copper-400);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-burger:hover {
+  color: var(--copper-500);
+}
+
+/* Spacing utilities */
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Grid utilities for admin */
+.grid {
+  display: grid;
+}
+
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Flexbox utilities */
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+/* Margin utilities */
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.p-2 {
+  padding: 0.5rem;
+}
+
+.p-5 {
+  padding: 1.25rem;
+}
+
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.py-2 {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+/* Text utilities */
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Rounded utilities */
+.rounded {
+  border-radius: var(--radius-sm);
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* Background utilities */
+.bg-green-100 {
+  background-color: hsl(145, 80%, 90%);
+}
+
+.bg-red-100 {
+  background-color: hsl(0, 80%, 90%);
+}
+
+.bg-red-600 {
+  background-color: hsl(0, 72%, 51%);
+}
+
+/* Text color utilities */
+.text-green-800 {
+  color: hsl(145, 70%, 25%);
+}
+
+.text-red-800 {
+  color: hsl(0, 70%, 25%);
+}
+
+.text-white {
+  color: white;
+}
+
+/* Hover utilities */
+.hover\:bg-red-700:hover {
+  background-color: hsl(0, 72%, 45%);
+}
+
+.hover\:shadow-xl:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Transition utilities */
+.transition-shadow {
+  transition: box-shadow var(--transition-base);
+}
+
+.transition-colors {
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+/* Gradient utility for no-image placeholder */
+.bg-gradient-to-br {
+  background: linear-gradient(to bottom right, var(--bg-tertiary), var(--bg-secondary));
+}
+
+/* Absolute positioning */
+.absolute {
+  position: absolute;
+}
+
+.relative {
+  position: relative;
+}
+
+.top-2 {
+  top: 0.5rem;
+}
+
+.right-2 {
+  right: 0.5rem;
+}
+
+/* Height utilities */
+.h-48 {
+  height: 12rem;
+}
+
+.h-full {
+  height: 100%;
+}
+
+/* Overflow utilities */
+.overflow-hidden {
+  overflow: hidden;
+}
+
+/* Object fit */
+.object-cover {
+  object-fit: cover;
 }

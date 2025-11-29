@@ -27,7 +27,7 @@ export default function AdminPropertyCard({ property, onDelete }: AdminPropertyC
     return (
         <div className="bg-[var(--bg-secondary)] rounded-lg shadow-md border border-[var(--border-medium)] overflow-hidden hover:shadow-xl transition-shadow">
             {/* Image */}
-            <div className="relative h-48 bg-[var(--bg-tertiary)]">
+            <div className="relative h-48 bg-[var(--bg-tertiary)] overflow-hidden">
                 {property.images && property.images.length > 0 ? (
                     <img
                         src={property.images[0]}
@@ -35,8 +35,13 @@ export default function AdminPropertyCard({ property, onDelete }: AdminPropertyC
                         className="w-full h-full object-cover"
                     />
                 ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[var(--text-muted)]">
-                        No Image
+                    <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[var(--bg-tertiary)] to-[var(--bg-secondary)]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--text-muted)] mb-2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                        <span className="text-[var(--text-muted)] text-sm">No Image</span>
                     </div>
                 )}
                 {/* Status Badge */}
@@ -64,13 +69,13 @@ export default function AdminPropertyCard({ property, onDelete }: AdminPropertyC
 
                 {/* Property Details */}
                 <div className="flex gap-4 text-sm text-[var(--text-secondary)] mb-4">
-                    {property.bedrooms && (
+                    {property.propertyType !== 'Plot' && property.bedrooms !== undefined && property.bedrooms > 0 && (
                         <span>🛏️ {property.bedrooms} Beds</span>
                     )}
-                    {property.bathrooms && (
+                    {property.propertyType !== 'Plot' && property.bathrooms !== undefined && property.bathrooms > 0 && (
                         <span>🚿 {property.bathrooms} Baths</span>
                     )}
-                    <span>{property.propertyType}</span>
+                    <span className="font-medium text-[var(--copper-400)]">{property.propertyType}</span>
                 </div>
 
                 {/* Action Buttons */}

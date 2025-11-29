@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-export default function EditProperty({ params }: { params: { id: string } }) {
+export default function EditProperty({ params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = use(params)
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [fetchingData, setFetchingData] = useState(true)
@@ -27,7 +28,7 @@ export default function EditProperty({ params }: { params: { id: string } }) {
     useEffect(() => {
         const fetchProperty = async () => {
             try {
-                const response = await fetch(`/api/properties/${params.id}`)
+                const response = await fetch(`/api/properties/${resolvedParams.id}`)
                 if (response.ok) {
                     const property = await response.json()
                     setFormData({
@@ -57,7 +58,7 @@ export default function EditProperty({ params }: { params: { id: string } }) {
         }
 
         fetchProperty()
-    }, [params.id])
+    }, [resolvedParams.id])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({
@@ -117,7 +118,7 @@ export default function EditProperty({ params }: { params: { id: string } }) {
         }
 
         try {
-            const response = await fetch(`/api/properties/${params.id}`, {
+            const response = await fetch(`/api/properties/${resolvedParams.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

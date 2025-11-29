@@ -13,11 +13,12 @@ interface SidebarProps {
     areas: string[]
     onFilterChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
     onApplyFilters: () => void
+    onClearFilters: () => void
 }
 
 const PROPERTY_TYPES = ['Plot', 'House', 'Flat', 'Rental']
 
-export default function Sidebar({ filters, areas, onFilterChange, onApplyFilters, isCollapsed }: SidebarProps & { isCollapsed: boolean }) {
+export default function Sidebar({ filters, areas, onFilterChange, onApplyFilters, onClearFilters, isCollapsed }: SidebarProps & { isCollapsed: boolean }) {
     return (
         <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
             <div className={`filter-section ${isCollapsed ? 'hidden-content' : ''}`}>
@@ -96,9 +97,14 @@ export default function Sidebar({ filters, areas, onFilterChange, onApplyFilters
                     />
                 </div>
 
-                <button className="btn btn-primary w-full" onClick={onApplyFilters}>
-                    Apply Filters
-                </button>
+                <div className="flex gap-2">
+                    <button className="btn btn-secondary flex-1" onClick={onClearFilters}>
+                        Clear
+                    </button>
+                    <button className="btn btn-primary flex-1" onClick={onApplyFilters}>
+                        Apply
+                    </button>
+                </div>
             </div>
         </aside>
     )

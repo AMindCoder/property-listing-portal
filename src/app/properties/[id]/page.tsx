@@ -27,39 +27,21 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
     const router = useRouter()
 
     useEffect(() => {
+        const fetchProperty = async () => {
+            setLoading(true)
+            try {
+                const response = await fetch(`/api/properties/${resolvedParams.id}`)
+                const data = await response.json()
+                setProperty(data)
+            } catch (error) {
+                console.error('Failed to fetch property:', error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
         fetchProperty()
     }, [resolvedParams.id])
-
-    const fetchProperty = async () => {
-        setLoading(true)
-        try {
-            const response = await fetch(`/api/properties/${resolvedParams.id}`)
-            const data = await response.json()
-            setProperty(data)
-        } catch (error) {
-            console.error('Failed to fetch property:', error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const handleStatusToggle = async () => {
-        if (!property) return
-
-        const newStatus = property.status === 'AVAILABLE' ? 'SOLD' : 'AVAILABLE'
-
-        try {
-            await fetch(`/api/properties/${resolvedParams.id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus })
-            })
-
-            setProperty({ ...property, status: newStatus })
-        } catch (error) {
-            console.error('Failed to update property:', error)
-        }
-    }
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -145,12 +127,6 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
                             <span>{property.area}, {property.location}</span>
                         </div>
                     </div>
-                    <button
-                        className={`btn ${property.status === 'AVAILABLE' ? 'btn-danger' : 'btn'}`}
-                        onClick={handleStatusToggle}
-                    >
-                        {property.status === 'AVAILABLE' ? 'Mark as Sold' : 'Mark as Available'}
-                    </button>
                 </div>
 
                 <p className="detail-description">{property.description}</p>
