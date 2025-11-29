@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-export default function AddProperty() {
+export default function EditProperty({ params }: { params: { id: string } }) {
     const router = useRouter()
     const [loading, setLoading] = useState(false)
+    const [fetchingData, setFetchingData] = useState(true)
     const [uploadedImages, setUploadedImages] = useState<string[]>([])
     const [formData, setFormData] = useState({
         title: '',
@@ -22,6 +23,41 @@ export default function AddProperty() {
         frontSize: '',
         backSize: '',
     })
+
+    useEffect(() => {
+        const fetchProperty = async () => {
+            try {
+                const response = await fetch(`/api/properties/${params.id}`)
+                if (response.ok) {
+                    const property = await response.json()
+                    setFormData({
+                        title: property.title || '',
+                        description: property.description || '',
+                        price: property.price?.toString() || '',
+                        location: property.location || '',
+                        area: property.area || '',
+                        bedrooms: property.bedrooms?.toString() || '',
+                        bathrooms: property.bathrooms?.toString() || '',
+                        propertyType: property.propertyType || 'House',
+                        status: property.status || 'AVAILABLE',
+                        size: property.size?.toString() || '',
+                        frontSize: property.frontSize?.toString() || '',
+                        backSize: property.backSize?.toString() || '',
+                    })
+                    setUploadedImages(property.images || [])
+                } else {
+                    alert('Failed to fetch property')
+                }
+            } catch (error) {
+                console.error('Error fetching property:', error)
+                alert('Error loading property')
+            } finally {
+                setFetchingData(false)
+            }
+        }
+
+        fetchProperty()
+    }, [params.id])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setFormData({
@@ -81,8 +117,8 @@ export default function AddProperty() {
         }
 
         try {
-            const response = await fetch('/api/properties', {
-                method: 'POST',
+            const response = await fetch(`/api/properties/${params.id}`, {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -92,14 +128,22 @@ export default function AddProperty() {
             if (response.ok) {
                 router.push('/admin')
             } else {
-                alert('Failed to add property')
+                alert('Failed to update property')
             }
         } catch (error) {
-            console.error('Error adding property:', error)
-            alert('Error adding property')
+            console.error('Error updating property:', error)
+            alert('Error updating property')
         } finally {
             setLoading(false)
         }
+    }
+
+    if (fetchingData) {
+        return (
+            <div className="container">
+                <div className="loading">Loading property...</div>
+            </div>
+        )
     }
 
     return (
@@ -112,7 +156,7 @@ export default function AddProperty() {
             </header>
 
             <main className="py-8 max-w-2xl mx-auto">
-                <h1 className="text-3xl font-bold mb-8">Add New Property</h1>
+                <h1 className="text-3xl font-bold mb-8">Edit Property</h1>
 
                 <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-lg shadow-md">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -270,7 +314,7 @@ export default function AddProperty() {
                             className="w-full p-2 border rounded"
                             disabled={loading}
                         />
-                        <p className="text-sm text-gray-500 mt-1">Select one or more images</p>
+                        <p className="text-sm text-gray-500 mt-1">Add more images or keep existing ones</p>
 
                         {uploadedImages.length > 0 && (
                             <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -302,7 +346,7 @@ export default function AddProperty() {
                         disabled={loading}
                         className="w-full btn btn-primary py-3 text-lg"
                     >
-                        {loading ? 'Adding Property...' : 'Add Property'}
+                        {loading ? 'Updating Property...' : 'Update Property'}
                     </button>
                 </form>
             </main>

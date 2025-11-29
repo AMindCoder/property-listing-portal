@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import AdminPropertyCard from '../components/AdminPropertyCard'
 
 interface Property {
     id: string
@@ -9,11 +10,16 @@ interface Property {
     location: string
     price: number
     status: string
+    images: string[]
+    bedrooms?: number
+    bathrooms?: number
+    propertyType: string
 }
 
 export default function AdminDashboard() {
     const [properties, setProperties] = useState<Property[]>([])
     const [loading, setLoading] = useState(true)
+    const [menuOpen, setMenuOpen] = useState(false)
 
     const fetchProperties = async () => {
         try {
@@ -32,8 +38,6 @@ export default function AdminDashboard() {
     }, [])
 
     const handleDelete = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this property?')) return
-
         console.log(`[Frontend] Deleting property: ${id}`)
         try {
             const response = await fetch(`/api/properties/${id}`, {
@@ -61,11 +65,46 @@ export default function AdminDashboard() {
             <header className="header">
                 <div className="header-content">
                     <Link href="/" className="logo">PropertyHub</Link>
-                    <div className="flex gap-4">
+
+                    {/* Desktop Menu */}
+                    <div className="hidden md:flex gap-4">
                         <Link href="/" className="btn btn-secondary">View Site</Link>
                         <Link href="/admin/add" className="btn btn-primary">Add Property</Link>
                     </div>
+
+                    {/* Mobile Burger Menu */}
+                    <button
+                        onClick={() => setMenuOpen(!menuOpen)}
+                        className="md:hidden p-2 text-[var(--copper-400)] hover:text-[var(--copper-500)] transition-colors"
+                        aria-label="Toggle menu"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
+
+                {/* Mobile Menu Dropdown */}
+                {menuOpen && (
+                    <div className="md:hidden bg-[var(--bg-secondary)] border-t border-[var(--border-medium)] py-4 px-4 space-y-2">
+                        <Link
+                            href="/"
+                            className="block btn btn-secondary text-center"
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            View Site
+                        </Link>
+                        <Link
+                            href="/admin/add"
+                            className="block btn btn-primary text-center"
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Add Property
+                        </Link>
+                    </div>
+                )}
             </header>
 
             <main className="py-8">
@@ -73,42 +112,22 @@ export default function AdminDashboard() {
 
                 {loading ? (
                     <div className="loading">Loading...</div>
+                ) : properties.length === 0 ? (
+                    <div className="empty-state">
+                        <p className="empty-message">No properties yet. Add one to get started!</p>
+                        <Link href="/admin/add" className="btn btn-primary mt-4 inline-block">
+                            Add Property
+                        </Link>
+                    </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full bg-white rounded-lg shadow-md">
-                            <thead className="bg-gray-100 border-b">
-                                <tr>
-                                    <th className="p-4 text-left">Title</th>
-                                    <th className="p-4 text-left">Location</th>
-                                    <th className="p-4 text-left">Price</th>
-                                    <th className="p-4 text-left">Status</th>
-                                    <th className="p-4 text-left">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {properties.map((property) => (
-                                    <tr key={property.id} className="border-b hover:bg-gray-50">
-                                        <td className="p-4">{property.title}</td>
-                                        <td className="p-4">{property.location}</td>
-                                        <td className="p-4">${property.price.toLocaleString()}</td>
-                                        <td className="p-4">
-                                            <span className={`px-2 py-1 rounded text-sm ${property.status === 'AVAILABLE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                                }`}>
-                                                {property.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-4">
-                                            <button
-                                                onClick={() => handleDelete(property.id)}
-                                                className="text-red-600 hover:text-red-800 font-medium"
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {properties.map((property) => (
+                            <AdminPropertyCard
+                                key={property.id}
+                                property={property}
+                                onDelete={handleDelete}
+                            />
+                        ))}
                     </div>
                 )}
             </main>

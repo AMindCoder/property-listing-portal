@@ -17,7 +17,7 @@ interface Property {
     size?: number
     frontSize?: number
     backSize?: number
-    imageUrl?: string
+    images: string[]
 }
 
 export default function PropertyDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -126,7 +126,7 @@ export default function PropertyDetail({ params }: { params: Promise<{ id: strin
                 </button>
 
                 <img
-                    src={property.imageUrl || 'https://placehold.co/1000x500/1a1a2e/7f8c8d?text=Property'}
+                    src={property.images?.[0] || 'https://placehold.co/1000x500/1a1a2e/7f8c8d?text=Property'}
                     alt={property.title}
                     className="detail-image"
                 />

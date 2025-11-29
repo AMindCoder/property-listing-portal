@@ -17,10 +17,10 @@ interface SidebarProps {
 
 const PROPERTY_TYPES = ['Plot', 'House', 'Flat', 'Rental']
 
-export default function Sidebar({ filters, areas, onFilterChange, onApplyFilters }: SidebarProps) {
+export default function Sidebar({ filters, areas, onFilterChange, onApplyFilters, isCollapsed }: SidebarProps & { isCollapsed: boolean }) {
     return (
-        <aside className="sidebar">
-            <div className="filter-section">
+        <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+            <div className={`filter-section ${isCollapsed ? 'hidden-content' : ''}`}>
                 <h2 className="filter-title">Filters</h2>
 
                 <div className="filter-group">

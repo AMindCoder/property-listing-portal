@@ -833,3 +833,104 @@ a.logo {
   text-decoration: none;
   color: inherit;
 }
+
+/* Sidebar Collapse */
+.sidebar {
+  transition: width var(--transition-base), transform var(--transition-base);
+  width: 300px;
+  position: sticky;
+  top: calc(1.75rem + 80px);
+  height: calc(100vh - 120px);
+  z-index: 50;
+}
+
+/* Desktop: Sidebar is always visible/expanded by default standard */
+/* We remove the 'collapsed' logic for desktop unless explicitly requested as a feature */
+/* But for now, we just want it persistent. */
+
+.sidebar .filter-section {
+  /* Ensure content is always visible on desktop */
+  display: block;
+}
+
+.hidden-content {
+  /* Only hide content if we are truly collapsing, which we might not do on desktop anymore */
+  opacity: 1;
+  /* Ensure content is visible by default on desktop */
+  pointer-events: auto;
+  display: block;
+}
+
+/* Mobile Nav Toggle - Hidden on Desktop */
+.mobile-nav-toggle {
+  display: none;
+}
+
+.main-layout {
+  transition: grid-template-columns var(--transition-base);
+  /* Standard desktop grid */
+  grid-template-columns: 300px 1fr;
+}
+
+/* Mobile Sidebar */
+@media (max-width: 768px) {
+  .mobile-nav-toggle {
+    display: block;
+    /* Show burger on mobile */
+    /* Remove absolute positioning so it sits in the header flex flow */
+    position: static;
+    width: auto;
+    height: auto;
+    background: transparent;
+    border: none;
+    color: var(--copper-400);
+    cursor: pointer;
+    z-index: 60;
+  }
+
+  .mobile-nav-toggle:hover {
+    background: transparent;
+    color: var(--copper-500);
+  }
+
+  .main-layout {
+    grid-template-columns: 1fr;
+    position: relative;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    transform: translateX(0);
+    /* Visible state (when !collapsed) */
+    background: var(--bg-primary);
+    border-right: 1px solid var(--border-medium);
+    z-index: 100;
+  }
+
+  /* On mobile, we use the 'collapsed' class to mean 'OPEN' (visible) 
+     because the default state (no class) is hidden (-100%).
+     Wait, the state logic in page.tsx is:
+     isSidebarCollapsed = true (default for mobile)
+     
+     If isSidebarCollapsed is true, we add 'collapsed' class.
+     So:
+     Default (true) -> .sidebar.collapsed -> Should be HIDDEN.
+     Toggle (false) -> .sidebar -> Should be VISIBLE.
+     
+     Let's match that logic.
+  */
+
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+    /* Hidden state (when collapsed) */
+    width: 280px;
+  }
+
+  .main-layout.sidebar-collapsed {
+    grid-template-columns: 1fr;
+  }
+}
