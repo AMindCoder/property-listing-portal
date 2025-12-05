@@ -131,14 +131,6 @@ export default function AdminDashboard() {
             <main className="py-8">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-                    <div className="flex gap-4">
-                        <Link href="/admin/leads" className="btn btn-secondary">
-                            📋 Manage Leads
-                        </Link>
-                        <Link href="/admin/add" className="btn btn-primary">
-                            + Add New Property
-                        </Link>
-                    </div>
                 </div>
 
                 {loading ? (
@@ -162,6 +154,6 @@ export default function AdminDashboard() {
                     </div>
                 )}
             </main>
-        </div>
+        </div >
     )
 }
