@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import PropertyCard from './components/PropertyCard'
 import Sidebar from './components/Sidebar'
 import Link from 'next/link'
+import Footer from './components/Footer'
 
 interface Property {
   id: string
@@ -140,19 +141,27 @@ export default function Home() {
               </button>
               <h1 className="logo">PropertyHub</h1>
             </div>
-            <Link
-              href="/login"
-              className="p-2 text-[var(--copper-400)] hover:text-[var(--copper-500)] transition-colors"
-              aria-label="Admin Access"
-              title="Admin Login"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-                <circle cx="20" cy="21" r="2"></circle>
-                <path d="M20 17a2 2 0 0 1 2 2"></path>
-              </svg>
-            </Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <Link
+                href="/services/construction"
+                className="hidden md:block text-[var(--copper-400)] hover:text-[var(--copper-500)] font-medium transition-colors"
+              >
+                Construction Services
+              </Link>
+              <Link
+                href="/login"
+                className="p-2 text-[var(--copper-400)] hover:text-[var(--copper-500)] transition-colors"
+                aria-label="Admin Access"
+                title="Admin Login"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                  <circle cx="20" cy="21" r="2"></circle>
+                  <path d="M20 17a2 2 0 0 1 2 2"></path>
+                </svg>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -185,6 +194,7 @@ export default function Home() {
           )}
         </div>
       </main>
+      <Footer />
     </div>
   )
 }

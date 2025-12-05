@@ -75,6 +75,7 @@ export default function AdminDashboard() {
                     {/* Desktop Menu */}
                     <div className="admin-header-buttons hidden md:flex">
                         <Link href="/" className="btn btn-secondary">View Site</Link>
+                        <Link href="/admin/leads" className="btn btn-secondary">Leads</Link>
                         <Link href="/admin/add" className="btn btn-primary">Add Property</Link>
                         <button onClick={handleLogout} className="btn btn-secondary">Logout</button>
                     </div>
@@ -128,7 +129,17 @@ export default function AdminDashboard() {
             </header>
 
             <main className="py-8">
-                <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+                <div className="flex justify-between items-center mb-8">
+                    <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+                    <div className="flex gap-4">
+                        <Link href="/admin/leads" className="btn btn-secondary">
+                            📋 Manage Leads
+                        </Link>
+                        <Link href="/admin/add" className="btn btn-primary">
+                            + Add New Property
+                        </Link>
+                    </div>
+                </div>
 
                 {loading ? (
                     <div className="loading">Loading...</div>

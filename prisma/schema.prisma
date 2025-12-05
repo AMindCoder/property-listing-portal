@@ -26,6 +26,22 @@ model Property {
   frontSize    Float?   // Front dimension
   backSize     Float?   // Back dimension
   images       String[]
+  ownerName    String?
+  ownerPhone   String?
+  leads        Lead[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model Lead {
+  id         String   @id @default(uuid())
+  name       String
+  phone      String
+  purpose    String   // Buy, Rent, Sell, General Inquiry
+  notes      String?
+  status     String   @default("NEW") // NEW, CONTACTED, INTERESTED, CONVERTED, LOST
+  propertyId String?
+  property   Property? @relation(fields: [propertyId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

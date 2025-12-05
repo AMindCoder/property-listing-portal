@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
-import path from 'path'
+import { put } from '@vercel/blob'
 import { v4 as uuidv4 } from 'uuid'
+import path from 'path'
+import fs from 'fs'
+import { writeFile } from 'fs/promises'
 
 export async function POST(request: NextRequest) {
     try {
+        console.log('[API Upload] Received upload request')
         const formData = await request.formData()
         const files = formData.getAll('files') as File[]
+        console.log(`[API Upload] Found ${files.length} files`)
 
         if (!files || files.length === 0) {
             return NextResponse.json(
@@ -22,19 +26,36 @@ export async function POST(request: NextRequest) {
                 continue
             }
 
-            const bytes = await file.arrayBuffer()
-            const buffer = Buffer.from(bytes)
-
             // Generate unique filename
             const fileExtension = path.extname(file.name)
             const uniqueFilename = `${uuidv4()}${fileExtension}`
-            const uploadPath = path.join(process.cwd(), 'public', 'uploads', uniqueFilename)
 
-            // Save file
-            await writeFile(uploadPath, buffer)
+            // Check if Vercel Blob token is configured
+            if (process.env.BLOB_READ_WRITE_TOKEN) {
+                console.log('[API Upload] Using Vercel Blob')
+                // Upload to Vercel Blob
+                const blob = await put(uniqueFilename, file, {
+                    access: 'public',
+                })
+                uploadedPaths.push(blob.url)
+            } else {
+                console.log('[API Upload] Using Local Storage Fallback')
+                // Fallback: Save locally to public/uploads
+                const bytes = await file.arrayBuffer()
+                const buffer = Buffer.from(bytes)
 
-            // Store the public URL
-            uploadedPaths.push(`/uploads/${uniqueFilename}`)
+                // Ensure uploads directory exists
+                const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+                if (!fs.existsSync(uploadDir)) {
+                    fs.mkdirSync(uploadDir, { recursive: true })
+                }
+
+                const filePath = path.join(uploadDir, uniqueFilename)
+                await writeFile(filePath, buffer)
+
+                // Store relative path (accessible via public URL)
+                uploadedPaths.push(`/uploads/${uniqueFilename}`)
+            }
         }
 
         return NextResponse.json({

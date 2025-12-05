@@ -23,6 +23,8 @@ export default function EditProperty({ params }: { params: Promise<{ id: string 
         size: '',
         frontSize: '',
         backSize: '',
+        ownerName: '',
+        ownerPhone: '',
     })
 
     useEffect(() => {
@@ -44,6 +46,8 @@ export default function EditProperty({ params }: { params: Promise<{ id: string 
                         size: property.size?.toString() || '',
                         frontSize: property.frontSize?.toString() || '',
                         backSize: property.backSize?.toString() || '',
+                        ownerName: property.ownerName || '',
+                        ownerPhone: property.ownerPhone || '',
                     })
                     setUploadedImages(property.images || [])
                 } else {
@@ -70,6 +74,11 @@ export default function EditProperty({ params }: { params: Promise<{ id: string 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files
         if (!files || files.length === 0) return
+
+        if (uploadedImages.length + files.length > 10) {
+            alert('You can upload a maximum of 10 images.')
+            return
+        }
 
         setLoading(true)
         const formData = new FormData()
@@ -220,6 +229,7 @@ export default function EditProperty({ params }: { params: Promise<{ id: string 
                                 <option value="House">House</option>
                                 <option value="Flat">Flat</option>
                                 <option value="Plot">Plot</option>
+                                <option value="Shop">Shop</option>
                                 <option value="Rental">Rental</option>
                             </select>
                         </div>
@@ -235,6 +245,30 @@ export default function EditProperty({ params }: { params: Promise<{ id: string 
                                 <option value="AVAILABLE">Available</option>
                                 <option value="SOLD">Sold</option>
                             </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="block mb-2 font-medium">Owner Name</label>
+                            <input
+                                type="text"
+                                name="ownerName"
+                                className="w-full p-2 border rounded"
+                                value={formData.ownerName}
+                                onChange={handleChange}
+                                placeholder="Optional"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label className="block mb-2 font-medium">Owner Phone</label>
+                            <input
+                                type="tel"
+                                name="ownerPhone"
+                                className="w-full p-2 border rounded"
+                                value={formData.ownerPhone}
+                                onChange={handleChange}
+                                placeholder="Optional"
+                            />
                         </div>
 
                         <div className="form-group">
@@ -306,16 +340,16 @@ export default function EditProperty({ params }: { params: Promise<{ id: string 
                     </div>
 
                     <div className="form-group">
-                        <label className="block mb-2 font-medium">Property Images</label>
+                        <label className="block mb-2 font-medium">Property Images ({uploadedImages.length}/10)</label>
                         <input
                             type="file"
                             accept="image/*"
                             multiple
                             onChange={handleImageUpload}
                             className="w-full p-2 border rounded"
-                            disabled={loading}
+                            disabled={loading || uploadedImages.length >= 10}
                         />
-                        <p className="text-sm text-gray-500 mt-1">Add more images or keep existing ones</p>
+                        <p className="text-sm text-gray-500 mt-1">Add more images (max 10 total)</p>
 
                         {uploadedImages.length > 0 && (
                             <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">

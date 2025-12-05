@@ -601,9 +601,26 @@ h6 {
     padding: 0 1rem;
   }
 
-  .property-grid {
+  .main-layout {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .sidebar {
+    position: relative;
+    top: 0;
+    margin-bottom: 2rem;
+  }
+
+  .sidebar .filter-section {
+    padding: 1.5rem;
+  }
+
+  .property-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
   }
 
   .filter-grid {
@@ -611,15 +628,20 @@ h6 {
   }
 
   .detail-title {
-    font-size: 2.25rem;
+    font-size: 2rem;
   }
 
   .detail-image {
-    height: 350px;
+    height: 300px;
   }
 
   .detail-header {
     flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .property-card:hover {
+    transform: none;
   }
 }
 
@@ -1006,7 +1028,7 @@ a.logo {
 }
 
 /* Spacing utilities */
-.space-y-2 > * + * {
+.space-y-2>*+* {
   margin-top: 0.5rem;
 }
 
@@ -1221,7 +1243,7 @@ a.logo {
 }
 
 /* Spacing utilities */
-.space-y-4 > * + * {
+.space-y-4>*+* {
   margin-top: 1rem;
 }
 

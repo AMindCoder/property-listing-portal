@@ -16,7 +16,7 @@ interface SidebarProps {
     onClearFilters: () => void
 }
 
-const PROPERTY_TYPES = ['Plot', 'House', 'Flat', 'Rental']
+const PROPERTY_TYPES = ['Plot', 'House', 'Flat', 'Shop', 'Rental']
 
 export default function Sidebar({ filters, areas, onFilterChange, onApplyFilters, onClearFilters, isCollapsed }: SidebarProps & { isCollapsed: boolean }) {
     return (
@@ -77,7 +77,7 @@ export default function Sidebar({ filters, areas, onFilterChange, onApplyFilters
                         id="minPrice"
                         type="number"
                         name="minPrice"
-                        placeholder="$0"
+                        placeholder="₹0"
                         className="filter-input"
                         value={filters.minPrice}
                         onChange={onFilterChange}

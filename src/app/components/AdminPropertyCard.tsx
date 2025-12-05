@@ -47,8 +47,8 @@ export default function AdminPropertyCard({ property, onDelete }: AdminPropertyC
                 {/* Status Badge */}
                 <div className="absolute top-2 right-2">
                     <span className={`px-3 py-1 rounded-full text-xs font-semibold ${property.status === 'AVAILABLE'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
                         }`}>
                         {property.status}
                     </span>
@@ -64,7 +64,7 @@ export default function AdminPropertyCard({ property, onDelete }: AdminPropertyC
                     📍 {property.location}
                 </p>
                 <p className="text-2xl font-bold text-[var(--copper-500)] mb-3">
-                    ${property.price.toLocaleString()}
+                    {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(property.price)}
                 </p>
 
                 {/* Property Details */}
