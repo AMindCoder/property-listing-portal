@@ -69,6 +69,11 @@
   box-sizing: border-box;
 }
 
+/* Reset list styles */
+ul, ol {
+  list-style: none;
+}
+
 body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-primary);
@@ -107,12 +112,12 @@ h6 {
 .header {
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-medium);
-  padding: 1.75rem 0;
+  padding: 1rem 0;
   position: sticky;
   top: 0;
   z-index: 100;
   backdrop-filter: blur(16px);
-  background: hsla(210, 40%, 16%, 0.85);
+  background: hsla(210, 40%, 16%, 0.95);
 }
 
 .header-content {
@@ -123,7 +128,7 @@ h6 {
 
 .logo {
   font-family: 'Playfair Display', serif;
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--text-primary);
@@ -141,38 +146,148 @@ h6 {
   background: linear-gradient(90deg, var(--copper-500), transparent);
 }
 
+/* Main Navigation */
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-link {
+  padding: 0.5rem 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.nav-link:hover {
+  color: var(--copper-400);
+  background: var(--bg-tertiary);
+}
+
+.nav-link-active {
+  color: var(--copper-500);
+  background: var(--bg-tertiary);
+}
+
+/* Filter Toggle Button */
+.filter-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--copper-400);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filter-toggle-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--copper-500);
+  color: var(--copper-500);
+}
+
+.filter-toggle-text {
+  display: none;
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--copper-400);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.mobile-menu-toggle:hover {
+  color: var(--copper-500);
+}
+
+/* Mobile Navigation Dropdown */
+.mobile-nav {
+  display: none;
+  flex-direction: column;
+  padding: 1rem 0;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: 1rem;
+}
+
+.mobile-nav-link {
+  padding: 0.75rem 1rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.mobile-nav-link:hover {
+  color: var(--copper-400);
+  background: var(--bg-tertiary);
+}
+
+.mobile-nav-link-active {
+  color: var(--copper-500);
+  background: var(--bg-tertiary);
+}
+
 /* Main Layout with Sidebar */
 .main-layout {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 2.5rem;
-  margin-top: 2.5rem;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
   align-items: start;
+  min-height: calc(100vh - 200px);
+}
+
+.main-layout.sidebar-collapsed {
+  grid-template-columns: 1fr;
+}
+
+.main-layout.sidebar-collapsed .sidebar {
+  display: none;
 }
 
 .sidebar {
   position: sticky;
-  top: calc(1.75rem + 80px);
-  /* Header height + padding */
+  top: 80px;
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
 }
 
 .sidebar .filter-section {
   margin: 0;
-  padding: 2rem;
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
 }
 
 .sidebar .filter-title {
-  font-size: 1.25rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+  margin-bottom: 1.25rem;
 }
 
 .sidebar .filter-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .sidebar .btn {
   width: 100%;
-  padding: 0.875rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   font-size: 0.875rem;
 }
 
@@ -596,9 +711,28 @@ h6 {
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+  .filter-toggle-text {
+    display: inline;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 0 1rem;
+  }
+
+  /* Hide desktop nav, show mobile toggle */
+  .main-nav {
+    display: none;
+  }
+
+  .mobile-menu-toggle {
+    display: block;
+  }
+
+  .mobile-nav {
+    display: flex;
   }
 
   .main-layout {
@@ -607,10 +741,26 @@ h6 {
     margin-top: 1.5rem;
   }
 
+  .main-layout .sidebar {
+    display: none;
+  }
+
+  .main-layout.sidebar-visible .sidebar {
+    display: block;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 90;
+    background: var(--bg-primary);
+    padding: 1rem;
+    overflow-y: auto;
+  }
+
   .sidebar {
     position: relative;
     top: 0;
-    margin-bottom: 2rem;
   }
 
   .sidebar .filter-section {
@@ -618,9 +768,9 @@ h6 {
   }
 
   .property-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: 1fr;
     gap: 1.5rem;
-    margin: 2rem 0;
+    margin: 1.5rem 0;
   }
 
   .filter-grid {
@@ -628,11 +778,11 @@ h6 {
   }
 
   .detail-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .detail-image {
-    height: 300px;
+    height: 250px;
   }
 
   .detail-header {
@@ -642,6 +792,10 @@ h6 {
 
   .property-card:hover {
     transform: none;
+  }
+
+  .logo {
+    font-size: 1.5rem;
   }
 }
 
@@ -856,42 +1010,13 @@ a.logo {
   color: inherit;
 }
 
-/* Sidebar Collapse */
+/* Sidebar Transitions */
 .sidebar {
-  transition: width var(--transition-base), transform var(--transition-base);
-  width: 300px;
-  position: sticky;
-  top: calc(1.75rem + 80px);
-  height: calc(100vh - 120px);
-  z-index: 50;
-}
-
-/* Desktop: Sidebar is always visible/expanded by default standard */
-/* We remove the 'collapsed' logic for desktop unless explicitly requested as a feature */
-/* But for now, we just want it persistent. */
-
-.sidebar .filter-section {
-  /* Ensure content is always visible on desktop */
-  display: block;
+  transition: all var(--transition-base);
 }
 
 .hidden-content {
-  /* Only hide content if we are truly collapsing, which we might not do on desktop anymore */
-  opacity: 1;
-  /* Ensure content is visible by default on desktop */
-  pointer-events: auto;
   display: block;
-}
-
-/* Mobile Nav Toggle - Hidden on Desktop */
-.mobile-nav-toggle {
-  display: none;
-}
-
-.main-layout {
-  transition: grid-template-columns var(--transition-base);
-  /* Standard desktop grid */
-  grid-template-columns: 300px 1fr;
 }
 
 /* Utility Classes for Responsive Design */
@@ -918,68 +1043,6 @@ a.logo {
   }
 }
 
-/* Mobile Sidebar */
-@media (max-width: 768px) {
-  .mobile-nav-toggle {
-    display: block;
-    /* Show burger on mobile */
-    /* Remove absolute positioning so it sits in the header flex flow */
-    position: static;
-    width: auto;
-    height: auto;
-    background: transparent;
-    border: none;
-    color: var(--copper-400);
-    cursor: pointer;
-    z-index: 60;
-  }
-
-  .mobile-nav-toggle:hover {
-    background: transparent;
-    color: var(--copper-500);
-  }
-
-  .main-layout {
-    grid-template-columns: 1fr;
-    position: relative;
-  }
-
-  .sidebar {
-    position: fixed;
-    top: 80px;
-    left: 0;
-    bottom: 0;
-    width: 280px;
-    transform: translateX(0);
-    /* Visible state (when !collapsed) */
-    background: var(--bg-primary);
-    border-right: 1px solid var(--border-medium);
-    z-index: 100;
-  }
-
-  /* On mobile, we use the 'collapsed' class to mean 'OPEN' (visible)
-     because the default state (no class) is hidden (-100%).
-     Wait, the state logic in page.tsx is:
-     isSidebarCollapsed = true (default for mobile)
-
-     If isSidebarCollapsed is true, we add 'collapsed' class.
-     So:
-     Default (true) -> .sidebar.collapsed -> Should be HIDDEN.
-     Toggle (false) -> .sidebar -> Should be VISIBLE.
-
-     Let's match that logic.
-  */
-
-  .sidebar.collapsed {
-    transform: translateX(-100%);
-    /* Hidden state (when collapsed) */
-    width: 280px;
-  }
-
-  .main-layout.sidebar-collapsed {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* Admin Header Styles */
 .admin-header-buttons {
@@ -1329,4 +1392,149 @@ a.logo {
 
 .underline-offset-2 {
   text-underline-offset: 2px;
+}
+
+/* Footer Styles */
+.footer-section {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-medium);
+  padding: 3rem 0 1.5rem;
+  margin-top: 4rem;
+}
+
+.footer-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.5fr;
+  gap: 3rem;
+  margin-bottom: 2.5rem;
+}
+
+.footer-brand {
+  max-width: 320px;
+}
+
+.footer-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.footer-tagline {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.footer-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-heading {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--copper-400);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1.25rem;
+}
+
+.footer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-link {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+.footer-link:hover {
+  color: var(--copper-400);
+}
+
+.footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-tertiary);
+  font-size: 0.875rem;
+}
+
+.footer-social {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footer-social-link {
+  color: var(--text-tertiary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color var(--transition-fast);
+}
+
+.footer-social-link:hover {
+  color: var(--copper-400);
+}
+
+/* Footer Responsive */
+@media (max-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .footer-brand {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-section {
+    padding: 2rem 0 1rem;
+    margin-top: 2rem;
+  }
+
+  .footer-container {
+    padding: 0 1rem;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
 }

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Header from '../components/Header'
 
 export default function LoginPage() {
     const [username, setUsername] = useState('')
@@ -23,13 +24,7 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen bg-[var(--bg-primary)] grid grid-rows-[auto_1fr]">
-            <header className="header">
-                <div className="container">
-                    <div className="header-content">
-                        <Link href="/" className="logo hover:text-[var(--copper-400)] transition-colors">PropertyHub</Link>
-                    </div>
-                </div>
-            </header>
+            <Header />
 
             <main className="grid place-items-center p-4 sm:p-6">
                 <div className="w-full max-w-md bg-[var(--bg-secondary)] p-8 sm:p-10 rounded-xl shadow-2xl border border-[var(--border-medium)]">

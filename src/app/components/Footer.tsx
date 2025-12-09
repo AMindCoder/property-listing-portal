@@ -5,47 +5,64 @@ import Link from 'next/link'
 
 export default function Footer() {
     return (
-        <footer className="bg-gray-900 text-white py-12 mt-12">
-            <div className="container mx-auto px-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div>
-                        <h3 className="text-xl font-bold mb-4">PropertyHub</h3>
-                        <p className="text-[var(--copper-100)]">
+        <footer className="footer-section">
+            <div className="footer-container">
+                <div className="footer-grid">
+                    {/* Brand */}
+                    <div className="footer-brand">
+                        <h3 className="footer-logo">PropertyHub</h3>
+                        <p className="footer-tagline">
                             Your trusted partner in finding the perfect property.
-                            From plots to luxury homes, we have it all.
+                            From plots to luxury homes, we connect you with your dreams.
                         </p>
                     </div>
-                    <div>
-                        <h3 className="text-xl font-bold mb-4">Quick Links</h3>
-                        <ul className="space-y-2">
-                            <li>
-                                <Link href="/" className="text-[var(--copper-100)] hover:text-[var(--copper-300)] transition-colors">
-                                    Home
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/services/construction" className="text-[var(--copper-100)] hover:text-[var(--copper-300)] transition-colors">
-                                    Construction Services
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/admin" className="text-[var(--copper-100)] hover:text-[var(--copper-300)] transition-colors">
-                                    Admin Login
-                                </Link>
-                            </li>
-                        </ul>
+
+                    {/* Quick Links */}
+                    <div className="footer-column">
+                        <h4 className="footer-heading">Quick Links</h4>
+                        <nav className="footer-nav">
+                            <Link href="/" className="footer-link">Home</Link>
+                            <Link href="/services/construction" className="footer-link">Construction Services</Link>
+                            <Link href="/admin" className="footer-link">Admin Portal</Link>
+                        </nav>
                     </div>
-                    <div>
-                        <h3 className="text-xl font-bold mb-4">Contact Us</h3>
-                        <ul className="space-y-2 text-[var(--copper-100)]">
-                            <li>Email: info@propertyhub.com</li>
-                            <li>Phone: +91 98765 43210</li>
-                            <li>Address: 123 Property Lane, Real Estate City</li>
-                        </ul>
+
+                    {/* Legal */}
+                    <div className="footer-column">
+                        <h4 className="footer-heading">Legal</h4>
+                        <nav className="footer-nav">
+                            <a href="#" className="footer-link">Privacy Policy</a>
+                            <a href="#" className="footer-link">Terms of Service</a>
+                        </nav>
+                    </div>
+
+                    {/* Contact */}
+                    <div className="footer-column">
+                        <h4 className="footer-heading">Contact Us</h4>
+                        <div className="footer-contact">
+                            <div className="footer-contact-item">
+                                <span>📧</span>
+                                <span>info@propertyhub.com</span>
+                            </div>
+                            <div className="footer-contact-item">
+                                <span>📞</span>
+                                <span>+91 98765 43210</span>
+                            </div>
+                            <div className="footer-contact-item">
+                                <span>📍</span>
+                                <span>123 Property Lane, Real Estate City, India</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className="border-t border-gray-800 mt-8 pt-8 text-center text-[var(--copper-200)]">
+
+                <div className="footer-bottom">
                     <p>&copy; {new Date().getFullYear()} PropertyHub. All rights reserved.</p>
+                    <div className="footer-social">
+                        <a href="#" className="footer-social-link">Twitter</a>
+                        <a href="#" className="footer-social-link">LinkedIn</a>
+                        <a href="#" className="footer-social-link">Instagram</a>
+                    </div>
                 </div>
             </div>
         </footer>

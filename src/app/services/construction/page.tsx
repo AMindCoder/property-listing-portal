@@ -2,16 +2,12 @@
 
 import Link from 'next/link'
 import Footer from '../../components/Footer'
+import Header from '../../components/Header'
 
 export default function ConstructionServices() {
     return (
         <div className="container">
-            <header className="header">
-                <div className="header-content">
-                    <Link href="/" className="logo">PropertyHub</Link>
-                    <Link href="/" className="btn btn-secondary">Back to Listings</Link>
-                </div>
-            </header>
+            <Header backLink="/" backLabel="Back to Listings" />
 
             <main className="py-12 max-w-4xl mx-auto">
                 <div className="text-center mb-12">
