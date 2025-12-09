@@ -504,6 +504,11 @@ h6 {
   color: var(--text-primary);
   line-height: 1.3;
   font-family: 'Playfair Display', serif;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .status-badge {
@@ -535,6 +540,11 @@ h6 {
   font-size: 0.9375rem;
   margin-bottom: 1.25rem;
   line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .property-details {
