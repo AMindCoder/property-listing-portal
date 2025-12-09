@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
 import { v4 as uuidv4 } from 'uuid'
-import path from 'path'
-import fs from 'fs'
-import { writeFile } from 'fs/promises'
 
 export async function POST(request: NextRequest) {
     try {
@@ -19,44 +16,41 @@ export async function POST(request: NextRequest) {
             )
         }
 
+        // Check if Vercel Blob token is configured
+        const blobToken = process.env.BLOBPROPERTY_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN
+        console.log('[API Upload] Blob token exists:', !!blobToken)
+
+        if (!blobToken) {
+            return NextResponse.json(
+                { error: 'Storage not configured. Please set BLOBPROPERTY_READ_WRITE_TOKEN.' },
+                { status: 500 }
+            )
+        }
+
         const uploadedPaths: string[] = []
 
         for (const file of files) {
             if (!file || !(file instanceof File)) {
+                console.log('[API Upload] Skipping invalid file')
                 continue
             }
 
-            // Generate unique filename
-            const fileExtension = path.extname(file.name)
-            const uniqueFilename = `${uuidv4()}${fileExtension}`
+            // Generate unique filename with properties prefix
+            const fileExtension = file.name.substring(file.name.lastIndexOf('.')) || '.jpg'
+            const uniqueFilename = `properties/${uuidv4()}${fileExtension}`
 
-            // Check if Vercel Blob token is configured (supports both naming conventions)
-            const blobToken = process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOBPROPERTY_READ_WRITE_TOKEN
-            if (blobToken) {
-                console.log('[API Upload] Using Vercel Blob')
-                // Upload to Vercel Blob
+            console.log(`[API Upload] Uploading file: ${file.name} as ${uniqueFilename}`)
+
+            try {
                 const blob = await put(uniqueFilename, file, {
                     access: 'public',
                     token: blobToken,
                 })
+                console.log(`[API Upload] Successfully uploaded: ${blob.url}`)
                 uploadedPaths.push(blob.url)
-            } else {
-                console.log('[API Upload] Using Local Storage Fallback')
-                // Fallback: Save locally to public/uploads
-                const bytes = await file.arrayBuffer()
-                const buffer = Buffer.from(bytes)
-
-                // Ensure uploads directory exists
-                const uploadDir = path.join(process.cwd(), 'public', 'uploads')
-                if (!fs.existsSync(uploadDir)) {
-                    fs.mkdirSync(uploadDir, { recursive: true })
-                }
-
-                const filePath = path.join(uploadDir, uniqueFilename)
-                await writeFile(filePath, buffer)
-
-                // Store relative path (accessible via public URL)
-                uploadedPaths.push(`/uploads/${uniqueFilename}`)
+            } catch (blobError) {
+                console.error('[API Upload] Blob upload error:', blobError)
+                throw blobError
             }
         }
 
@@ -65,9 +59,10 @@ export async function POST(request: NextRequest) {
             paths: uploadedPaths
         })
     } catch (error) {
-        console.error('Upload error:', error)
+        console.error('[API Upload] Error:', error)
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error'
         return NextResponse.json(
-            { error: 'Failed to upload files' },
+            { error: `Failed to upload files: ${errorMessage}` },
             { status: 500 }
         )
     }
