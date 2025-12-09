@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 interface Lead {
     id: string
@@ -21,6 +22,8 @@ export default function LeadsDashboard() {
     const [leads, setLeads] = useState<Lead[]>([])
     const [loading, setLoading] = useState(true)
     const [filterStatus, setFilterStatus] = useState('ALL')
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const pathname = usePathname()
 
     useEffect(() => {
         fetchLeads()
@@ -95,23 +98,72 @@ export default function LeadsDashboard() {
     }
 
     return (
-        <div className="container">
+        <div>
             <header className="header">
-                <div className="header-content">
-                    <Link href="/" className="logo">PropertyHub</Link>
-                    <div className="flex gap-4">
-                        <Link href="/admin" className="btn btn-secondary">Back to Dashboard</Link>
+                <div className="container">
+                    <div className="header-content">
+                        <div className="header-left">
+                            <Link href="/" className="logo">PropertyHub</Link>
+                        </div>
+
+                        <nav className="main-nav">
+                            <Link href="/" className={`nav-link ${pathname === '/' ? 'nav-link-active' : ''}`}>
+                                Home
+                            </Link>
+                            <Link href="/services/construction" className={`nav-link ${pathname === '/services/construction' ? 'nav-link-active' : ''}`}>
+                                Construction
+                            </Link>
+                            <Link href="/admin" className={`nav-link ${pathname?.startsWith('/admin') ? 'nav-link-active' : ''}`}>
+                                Admin
+                            </Link>
+                        </nav>
+
+                        <button
+                            className="mobile-menu-toggle"
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                            aria-label="Toggle menu"
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                {mobileMenuOpen ? (
+                                    <path d="M6 18L18 6M6 6l12 12" />
+                                ) : (
+                                    <path d="M3 12h18M3 6h18M3 18h18" />
+                                )}
+                            </svg>
+                        </button>
                     </div>
+
+                    {mobileMenuOpen && (
+                        <nav className="mobile-nav">
+                            <Link href="/" className={`mobile-nav-link ${pathname === '/' ? 'mobile-nav-link-active' : ''}`}>
+                                Home
+                            </Link>
+                            <Link href="/services/construction" className={`mobile-nav-link ${pathname === '/services/construction' ? 'mobile-nav-link-active' : ''}`}>
+                                Construction
+                            </Link>
+                            <Link href="/admin" className={`mobile-nav-link ${pathname?.startsWith('/admin') ? 'mobile-nav-link-active' : ''}`}>
+                                Admin
+                            </Link>
+                        </nav>
+                    )}
                 </div>
             </header>
 
-            <main className="py-8">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold">Leads Management</h1>
-                    <div className="flex gap-2 items-center">
-                        <span className="font-medium">Filter Status:</span>
+            <main className="container py-8">
+                {/* Breadcrumb */}
+                <nav className="breadcrumb">
+                    <Link href="/admin" className="breadcrumb-link">Admin</Link>
+                    <span className="breadcrumb-separator">/</span>
+                    <span className="breadcrumb-current">Leads</span>
+                </nav>
+
+                {/* Page Header */}
+                <div className="page-header">
+                    <h1 className="page-title">Leads Management</h1>
+                    <div className="page-actions">
+                        <label className="filter-label-inline">Filter:</label>
                         <select
-                            className="p-2 border rounded"
+                            className="filter-select-inline"
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
                         >
