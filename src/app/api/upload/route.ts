@@ -30,12 +30,14 @@ export async function POST(request: NextRequest) {
             const fileExtension = path.extname(file.name)
             const uniqueFilename = `${uuidv4()}${fileExtension}`
 
-            // Check if Vercel Blob token is configured
-            if (process.env.BLOB_READ_WRITE_TOKEN) {
+            // Check if Vercel Blob token is configured (supports both naming conventions)
+            const blobToken = process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOBPROPERTY_READ_WRITE_TOKEN
+            if (blobToken) {
                 console.log('[API Upload] Using Vercel Blob')
                 // Upload to Vercel Blob
                 const blob = await put(uniqueFilename, file, {
                     access: 'public',
+                    token: blobToken,
                 })
                 uploadedPaths.push(blob.url)
             } else {
