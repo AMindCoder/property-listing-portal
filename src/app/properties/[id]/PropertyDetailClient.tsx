@@ -189,44 +189,57 @@ export default function PropertyDetailClient({ property }: PropertyDetailClientP
                 </div>
 
                 {showLeadModal && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-lg p-8 max-w-md w-full relative">
+                    <div className="modal-overlay" onClick={() => setShowLeadModal(false)}>
+                        <div className="modal-content" onClick={e => e.stopPropagation()}>
                             <button
                                 onClick={() => setShowLeadModal(false)}
-                                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+                                className="modal-close-btn"
+                                aria-label="Close modal"
                             >
-                                ✕
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
                             </button>
 
-                            <h2 className="text-2xl font-bold mb-6">I'm Interested</h2>
+                            <h2 className="modal-title">I'm Interested</h2>
 
-                            <form onSubmit={handleLeadSubmit} className="space-y-4">
-                                <div>
-                                    <label className="block mb-1 font-medium">Name</label>
+                            <form onSubmit={handleLeadSubmit} className="modal-form">
+                                <div className="form-field">
+                                    <label htmlFor="lead-name" className="form-label">
+                                        Name <span className="required">*</span>
+                                    </label>
                                     <input
+                                        id="lead-name"
                                         type="text"
                                         required
-                                        className="w-full p-2 border rounded"
+                                        className="form-input"
+                                        placeholder="Enter your name"
                                         value={leadForm.name}
                                         onChange={e => setLeadForm({ ...leadForm, name: e.target.value })}
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="block mb-1 font-medium">Phone</label>
+                                <div className="form-field">
+                                    <label htmlFor="lead-phone" className="form-label">
+                                        Phone <span className="required">*</span>
+                                    </label>
                                     <input
+                                        id="lead-phone"
                                         type="tel"
                                         required
-                                        className="w-full p-2 border rounded"
+                                        className="form-input"
+                                        placeholder="Enter your phone number"
                                         value={leadForm.phone}
                                         onChange={e => setLeadForm({ ...leadForm, phone: e.target.value })}
                                     />
                                 </div>
 
-                                <div>
-                                    <label className="block mb-1 font-medium">Purpose</label>
+                                <div className="form-field">
+                                    <label htmlFor="lead-purpose" className="form-label">Purpose</label>
                                     <select
-                                        className="w-full p-2 border rounded"
+                                        id="lead-purpose"
+                                        className="form-input"
                                         value={leadForm.purpose}
                                         onChange={e => setLeadForm({ ...leadForm, purpose: e.target.value })}
                                     >
@@ -236,11 +249,13 @@ export default function PropertyDetailClient({ property }: PropertyDetailClientP
                                     </select>
                                 </div>
 
-                                <div>
-                                    <label className="block mb-1 font-medium">Message (Optional)</label>
+                                <div className="form-field">
+                                    <label htmlFor="lead-message" className="form-label">Message (Optional)</label>
                                     <textarea
-                                        className="w-full p-2 border rounded"
+                                        id="lead-message"
+                                        className="form-input form-textarea"
                                         rows={3}
+                                        placeholder="Any specific questions or requirements?"
                                         value={leadForm.notes}
                                         onChange={e => setLeadForm({ ...leadForm, notes: e.target.value })}
                                     />
@@ -248,7 +263,7 @@ export default function PropertyDetailClient({ property }: PropertyDetailClientP
 
                                 <button
                                     type="submit"
-                                    className="w-full btn btn-primary py-3"
+                                    className="btn btn-primary submit-btn"
                                     disabled={submittingLead}
                                 >
                                     {submittingLead ? 'Sending...' : 'Send Inquiry'}

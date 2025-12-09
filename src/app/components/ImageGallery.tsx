@@ -41,6 +41,18 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
 
     const hasMultipleImages = images.length > 1
 
+    const goToPrev = (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setMainImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1)
+    }
+
+    const goToNext = (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setMainImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1)
+    }
+
     return (
         <div className="gallery-container">
             {/* Main Image with Navigation */}
@@ -58,31 +70,33 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                             {mainImageIndex + 1} / {images.length}
                         </div>
                     )}
-                </div>
 
-                {/* Navigation Buttons */}
-                {hasMultipleImages && (
-                    <>
-                        <button
-                            className="nav-btn nav-prev"
-                            onClick={() => setMainImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1)}
-                            aria-label="Previous image"
-                        >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
-                        </button>
-                        <button
-                            className="nav-btn nav-next"
-                            onClick={() => setMainImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1)}
-                            aria-label="Next image"
-                        >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                        </button>
-                    </>
-                )}
+                    {/* Navigation Buttons - Inside the image wrapper */}
+                    {hasMultipleImages && (
+                        <>
+                            <button
+                                className="nav-btn nav-prev"
+                                onClick={goToPrev}
+                                aria-label="Previous image"
+                                type="button"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </button>
+                            <button
+                                className="nav-btn nav-next"
+                                onClick={goToNext}
+                                aria-label="Next image"
+                                type="button"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* Thumbnail Strip */}
@@ -95,6 +109,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                                 className={`thumbnail-btn ${mainImageIndex === index ? 'active' : ''}`}
                                 onClick={() => setMainImageIndex(index)}
                                 aria-label={`View image ${index + 1}`}
+                                type="button"
                             >
                                 <img src={img} alt={`Thumbnail ${index + 1}`} className="thumbnail-img" />
                             </button>
@@ -136,10 +151,11 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     background: rgba(0, 0, 0, 0.7);
                     color: white;
                     padding: 0.375rem 0.75rem;
-                    border-radius: var(--radius-full);
+                    border-radius: 9999px;
                     font-size: 0.875rem;
                     font-weight: 500;
                     backdrop-filter: blur(4px);
+                    z-index: 5;
                 }
 
                 .nav-btn {
@@ -148,7 +164,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     transform: translateY(-50%);
                     width: 48px;
                     height: 48px;
-                    border-radius: var(--radius-full);
+                    border-radius: 50%;
                     border: none;
                     cursor: pointer;
                     display: flex;
@@ -157,15 +173,21 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     transition: all 0.2s ease;
                     z-index: 10;
                     background: rgba(255, 255, 255, 0.95);
-                    color: var(--text-primary);
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                    color: #1a1a2e;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                }
+
+                .nav-btn svg {
+                    width: 24px;
+                    height: 24px;
+                    flex-shrink: 0;
                 }
 
                 .nav-btn:hover {
-                    background: var(--copper-500);
+                    background: var(--copper-500, #c48b69);
                     color: white;
-                    transform: translateY(-50%) scale(1.05);
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                    transform: translateY(-50%) scale(1.08);
+                    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
                 }
 
                 .nav-btn:active {
@@ -209,25 +231,29 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
 
                 .thumbnail-btn {
                     flex-shrink: 0;
-                    width: 90px;
-                    height: 65px;
-                    border-radius: var(--radius-md);
+                    width: 80px !important;
+                    height: 60px !important;
+                    min-width: 80px;
+                    max-width: 80px;
+                    min-height: 60px;
+                    max-height: 60px;
+                    border-radius: 8px;
                     overflow: hidden;
                     border: 3px solid transparent;
                     cursor: pointer;
                     padding: 0;
-                    transition: all 0.2s ease;
-                    background: transparent;
+                    transition: border-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+                    background: var(--bg-tertiary, #2a3042);
                     opacity: 0.7;
                 }
 
                 .thumbnail-btn:hover {
                     opacity: 1;
-                    border-color: var(--copper-300);
+                    border-color: var(--copper-300, #d4a882);
                 }
 
                 .thumbnail-btn.active {
-                    border-color: var(--copper-500);
+                    border-color: var(--copper-500, #c48b69);
                     opacity: 1;
                     box-shadow: 0 0 0 2px rgba(196, 139, 105, 0.3);
                 }
@@ -236,6 +262,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
+                    display: block;
                 }
 
                 @media (max-width: 768px) {
@@ -246,6 +273,11 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     .nav-btn {
                         width: 40px;
                         height: 40px;
+                    }
+
+                    .nav-btn svg {
+                        width: 20px;
+                        height: 20px;
                     }
 
                     .nav-prev {
@@ -261,8 +293,8 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     }
 
                     .thumbnail-btn {
-                        width: 70px;
-                        height: 50px;
+                        width: 60px;
+                        height: 45px;
                     }
 
                     .image-counter {
