@@ -110,6 +110,15 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                                 onClick={() => setMainImageIndex(index)}
                                 aria-label={`View image ${index + 1}`}
                                 type="button"
+                                style={{
+                                    flex: '0 0 80px',
+                                    width: '80px',
+                                    height: '60px',
+                                    minWidth: '80px',
+                                    maxWidth: '80px',
+                                    minHeight: '60px',
+                                    maxHeight: '60px',
+                                }}
                             >
                                 <img src={img} alt={`Thumbnail ${index + 1}`} className="thumbnail-img" />
                             </button>
@@ -209,11 +218,13 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
 
                 .thumbnails-track {
                     display: flex;
+                    flex-wrap: nowrap;
                     gap: 0.75rem;
                     overflow-x: auto;
                     padding: 0.5rem 0;
                     scrollbar-width: thin;
                     scrollbar-color: var(--copper-400) transparent;
+                    justify-content: flex-start;
                 }
 
                 .thumbnails-track::-webkit-scrollbar {
@@ -230,13 +241,13 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                 }
 
                 .thumbnail-btn {
-                    flex-shrink: 0;
+                    flex: 0 0 80px !important;
                     width: 80px !important;
                     height: 60px !important;
-                    min-width: 80px;
-                    max-width: 80px;
-                    min-height: 60px;
-                    max-height: 60px;
+                    min-width: 80px !important;
+                    max-width: 80px !important;
+                    min-height: 60px !important;
+                    max-height: 60px !important;
                     border-radius: 8px;
                     overflow: hidden;
                     border: 3px solid transparent;
@@ -245,6 +256,7 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     transition: border-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
                     background: var(--bg-tertiary, #2a3042);
                     opacity: 0.7;
+                    box-sizing: border-box;
                 }
 
                 .thumbnail-btn:hover {
@@ -293,8 +305,13 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     }
 
                     .thumbnail-btn {
-                        width: 60px;
-                        height: 45px;
+                        flex: 0 0 60px !important;
+                        width: 60px !important;
+                        height: 45px !important;
+                        min-width: 60px !important;
+                        max-width: 60px !important;
+                        min-height: 45px !important;
+                        max-height: 45px !important;
                     }
 
                     .image-counter {
