@@ -5,10 +5,10 @@ const prisma = new PrismaClient()
 
 export async function PUT(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const id = params.id
+        const { id } = await params
         const body = await request.json()
         const { status } = body
 
@@ -35,11 +35,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-    request: Request,
-    { params }: { params: { id: string } }
+    _request: Request,
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const id = params.id
+        const { id } = await params
         await prisma.lead.delete({
             where: { id },
         })
