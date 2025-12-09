@@ -12,11 +12,30 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
 
     if (!images || images.length === 0) {
         return (
-            <img
-                src="https://placehold.co/1000x500/1a1a2e/7f8c8d?text=No+Image"
-                alt={title}
-                className="detail-image"
-            />
+            <div className="gallery-placeholder">
+                <div className="placeholder-icon">🏠</div>
+                <p>No images available</p>
+                <style jsx>{`
+                    .gallery-placeholder {
+                        width: 100%;
+                        height: 400px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        background: var(--bg-tertiary);
+                        border-radius: var(--radius-lg);
+                        border: 1px solid var(--border-medium);
+                        margin-bottom: 2.5rem;
+                        color: var(--text-tertiary);
+                    }
+                    .placeholder-icon {
+                        font-size: 4rem;
+                        margin-bottom: 1rem;
+                        opacity: 0.5;
+                    }
+                `}</style>
+            </div>
         )
     }
 
@@ -24,49 +43,63 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
 
     return (
         <div className="gallery-container">
-            {/* Main Image */}
-            <div className="relative group">
+            {/* Main Image with Navigation */}
+            <div className="main-image-section">
                 <div className="main-image-wrapper">
                     <img
                         src={images[mainImageIndex]}
                         alt={`${title} - View ${mainImageIndex + 1}`}
                         className="main-image"
                     />
+
+                    {/* Image Counter */}
+                    {hasMultipleImages && (
+                        <div className="image-counter">
+                            {mainImageIndex + 1} / {images.length}
+                        </div>
+                    )}
                 </div>
 
+                {/* Navigation Buttons */}
                 {hasMultipleImages && (
                     <>
                         <button
-                            className="nav-btn prev"
+                            className="nav-btn nav-prev"
                             onClick={() => setMainImageIndex(prev => prev === 0 ? images.length - 1 : prev - 1)}
                             aria-label="Previous image"
                         >
-                            ←
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="15 18 9 12 15 6"></polyline>
+                            </svg>
                         </button>
                         <button
-                            className="nav-btn next"
+                            className="nav-btn nav-next"
                             onClick={() => setMainImageIndex(prev => prev === images.length - 1 ? 0 : prev + 1)}
                             aria-label="Next image"
                         >
-                            →
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
                         </button>
                     </>
                 )}
             </div>
 
-            {/* Thumbnails */}
+            {/* Thumbnail Strip */}
             {hasMultipleImages && (
-                <div className="thumbnails-track">
-                    {images.map((img, index) => (
-                        <button
-                            key={index}
-                            className={`thumbnail-btn ${mainImageIndex === index ? 'active' : ''}`}
-                            onClick={() => setMainImageIndex(index)}
-                            aria-label={`View image ${index + 1}`}
-                        >
-                            <img src={img} alt={`Thumbnail ${index + 1}`} className="thumbnail-img" />
-                        </button>
-                    ))}
+                <div className="thumbnails-container">
+                    <div className="thumbnails-track">
+                        {images.map((img, index) => (
+                            <button
+                                key={index}
+                                className={`thumbnail-btn ${mainImageIndex === index ? 'active' : ''}`}
+                                onClick={() => setMainImageIndex(index)}
+                                aria-label={`View image ${index + 1}`}
+                            >
+                                <img src={img} alt={`Thumbnail ${index + 1}`} className="thumbnail-img" />
+                            </button>
+                        ))}
+                    </div>
                 </div>
             )}
 
@@ -75,10 +108,14 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     margin-bottom: 2.5rem;
                 }
 
+                .main-image-section {
+                    position: relative;
+                }
+
                 .main-image-wrapper {
                     position: relative;
                     width: 100%;
-                    height: 550px;
+                    height: 500px;
                     border-radius: var(--radius-lg);
                     overflow: hidden;
                     border: 1px solid var(--border-medium);
@@ -90,69 +127,109 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
-                    transition: transform var(--transition-base);
+                }
+
+                .image-counter {
+                    position: absolute;
+                    bottom: 1rem;
+                    right: 1rem;
+                    background: rgba(0, 0, 0, 0.7);
+                    color: white;
+                    padding: 0.375rem 0.75rem;
+                    border-radius: var(--radius-full);
+                    font-size: 0.875rem;
+                    font-weight: 500;
+                    backdrop-filter: blur(4px);
                 }
 
                 .nav-btn {
                     position: absolute;
                     top: 50%;
                     transform: translateY(-50%);
-                    background: rgba(0, 0, 0, 0.5);
-                    color: white;
+                    width: 48px;
+                    height: 48px;
+                    border-radius: var(--radius-full);
                     border: none;
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
                     cursor: pointer;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    font-size: 1.25rem;
-                    opacity: 0;
-                    transition: all var(--transition-base);
-                    backdrop-filter: blur(4px);
-                }
-
-                .group:hover .nav-btn {
-                    opacity: 1;
+                    transition: all 0.2s ease;
+                    z-index: 10;
+                    background: rgba(255, 255, 255, 0.95);
+                    color: var(--text-primary);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
                 }
 
                 .nav-btn:hover {
                     background: var(--copper-500);
+                    color: white;
+                    transform: translateY(-50%) scale(1.05);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
                 }
 
-                .prev { left: 1rem; }
-                .next { right: 1rem; }
+                .nav-btn:active {
+                    transform: translateY(-50%) scale(0.95);
+                }
+
+                .nav-prev {
+                    left: 1rem;
+                }
+
+                .nav-next {
+                    right: 1rem;
+                }
+
+                .thumbnails-container {
+                    margin-top: 1rem;
+                    padding: 0.25rem;
+                }
 
                 .thumbnails-track {
                     display: flex;
-                    gap: 1rem;
-                    margin-top: 1rem;
+                    gap: 0.75rem;
                     overflow-x: auto;
-                    padding-bottom: 0.5rem;
+                    padding: 0.5rem 0;
                     scrollbar-width: thin;
-                    scrollbar-color: var(--copper-500) var(--bg-tertiary);
-                    scroll-snap-type: x mandatory;
+                    scrollbar-color: var(--copper-400) transparent;
+                }
+
+                .thumbnails-track::-webkit-scrollbar {
+                    height: 6px;
+                }
+
+                .thumbnails-track::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+
+                .thumbnails-track::-webkit-scrollbar-thumb {
+                    background: var(--copper-400);
+                    border-radius: 3px;
                 }
 
                 .thumbnail-btn {
                     flex-shrink: 0;
-                    width: 100px;
-                    height: 70px;
+                    width: 90px;
+                    height: 65px;
                     border-radius: var(--radius-md);
                     overflow: hidden;
-                    border: 2px solid transparent;
+                    border: 3px solid transparent;
                     cursor: pointer;
                     padding: 0;
-                    transition: all var(--transition-base);
+                    transition: all 0.2s ease;
                     background: transparent;
-                    scroll-snap-align: start;
+                    opacity: 0.7;
+                }
+
+                .thumbnail-btn:hover {
+                    opacity: 1;
+                    border-color: var(--copper-300);
                 }
 
                 .thumbnail-btn.active {
                     border-color: var(--copper-500);
-                    box-shadow: var(--glow-copper);
-                    transform: translateY(-2px);
+                    opacity: 1;
+                    box-shadow: 0 0 0 2px rgba(196, 139, 105, 0.3);
                 }
 
                 .thumbnail-img {
@@ -163,21 +240,36 @@ export default function ImageGallery({ images, title }: ImageGalleryProps) {
 
                 @media (max-width: 768px) {
                     .main-image-wrapper {
-                        height: 300px;
+                        height: 280px;
                     }
-                    
+
                     .nav-btn {
-                        opacity: 1; /* Always visible on mobile */
-                        background: rgba(0, 0, 0, 0.3);
+                        width: 40px;
+                        height: 40px;
                     }
-                    
+
+                    .nav-prev {
+                        left: 0.5rem;
+                    }
+
+                    .nav-next {
+                        right: 0.5rem;
+                    }
+
                     .thumbnails-track {
-                        gap: 0.75rem;
+                        gap: 0.5rem;
                     }
-                    
+
                     .thumbnail-btn {
-                        width: 80px;
-                        height: 60px;
+                        width: 70px;
+                        height: 50px;
+                    }
+
+                    .image-counter {
+                        bottom: 0.5rem;
+                        right: 0.5rem;
+                        font-size: 0.75rem;
+                        padding: 0.25rem 0.5rem;
                     }
                 }
             `}</style>
