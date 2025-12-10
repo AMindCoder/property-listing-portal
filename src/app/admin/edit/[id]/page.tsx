@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { ImageUploader } from '@/components/ui/image-upload'
 
 export default function EditProperty({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params)
@@ -69,46 +70,6 @@ export default function EditProperty({ params }: { params: Promise<{ id: string 
             ...formData,
             [e.target.name]: e.target.value
         })
-    }
-
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files
-        if (!files || files.length === 0) return
-
-        if (uploadedImages.length + files.length > 10) {
-            alert('You can upload a maximum of 10 images.')
-            return
-        }
-
-        setLoading(true)
-        const formData = new FormData()
-
-        Array.from(files).forEach(file => {
-            formData.append('files', file)
-        })
-
-        try {
-            const response = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            })
-
-            if (response.ok) {
-                const data = await response.json()
-                setUploadedImages(prev => [...prev, ...data.paths])
-            } else {
-                alert('Failed to upload images')
-            }
-        } catch (error) {
-            console.error('Error uploading images:', error)
-            alert('Error uploading images')
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const removeImage = (index: number) => {
-        setUploadedImages(prev => prev.filter((_, i) => i !== index))
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -341,39 +302,21 @@ export default function EditProperty({ params }: { params: Promise<{ id: string 
 
                     <div className="form-group">
                         <label className="block mb-2 font-medium">Property Images ({uploadedImages.length}/10)</label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={handleImageUpload}
-                            className="w-full p-2 border rounded"
-                            disabled={loading || uploadedImages.length >= 10}
+                        <ImageUploader
+                            folder="properties"
+                            maxFiles={10}
+                            initialImages={uploadedImages}
+                            onUploadComplete={(urls) => {
+                                setUploadedImages(urls);
+                            }}
+                            onImagesChange={(urls) => {
+                                setUploadedImages(urls);
+                            }}
+                            onUploadError={(error) => {
+                                console.error('Upload error:', error);
+                                alert('Failed to upload images. Please try again.');
+                            }}
                         />
-                        <p className="text-sm text-gray-500 mt-1">Add more images (max 10 total)</p>
-
-                        {uploadedImages.length > 0 && (
-                            <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-                                {uploadedImages.map((imagePath, index) => (
-                                    <div key={index} className="relative group">
-                                        <img
-                                            src={imagePath}
-                                            alt={`Preview ${index + 1}`}
-                                            className="w-full h-32 object-cover rounded border"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeImage(index)}
-                                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
                     </div>
 
                     <button
@@ -381,7 +324,7 @@ export default function EditProperty({ params }: { params: Promise<{ id: string 
                         disabled={loading}
                         className="w-full btn btn-primary py-3 text-lg"
                     >
-                        {loading ? 'Updating Property...' : 'Update Property'}
+                        {loading ? 'Saving Changes...' : 'Update Property'}
                     </button>
                 </form>
             </main>

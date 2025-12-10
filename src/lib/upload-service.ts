@@ -40,8 +40,13 @@ export async function uploadFilesClient(options: ClientUploadOptions): Promise<C
             }
         }
 
-        // Determine path
-        const path = folder ? `${folder}/${fileToUpload.name}` : fileToUpload.name;
+        // Generate unique filename using UUID to avoid conflicts
+        // Keep the original extension
+        const extension = fileToUpload.name.split('.').pop() || 'jpg';
+        const uniqueFilename = `${crypto.randomUUID()}.${extension}`;
+
+        // Determine path with UUID filename
+        const path = folder ? `${folder}/${uniqueFilename}` : uniqueFilename;
 
         try {
             const newBlob = await upload(path, fileToUpload, {

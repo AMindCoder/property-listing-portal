@@ -9,11 +9,14 @@ export class VercelBlobProvider implements StorageProvider {
     constructor() {
         // Try to get the token from environment variables
         // BLOBPROPERTY_READ_WRITE_TOKEN seems to be a custom one, BLOB_READ_WRITE_TOKEN is standard
-        const token = process.env.BLOBPROPERTY_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN
+        // Also checking BLOBPRROPERTY_READ_WRITE_TOKEN (typo version reported by user)
+        const token = process.env.BLOBPROPERTY_READ_WRITE_TOKEN ||
+            process.env.BLOBPRROPERTY_READ_WRITE_TOKEN ||
+            process.env.BLOB_READ_WRITE_TOKEN
 
         if (!token) {
             throw new StorageError(
-                'Vercel Blob token not configured. Please set BLOBPROPERTY_READ_WRITE_TOKEN or BLOB_READ_WRITE_TOKEN.',
+                'Vercel Blob token not configured. Please set BLOBPROPERTY_READ_WRITE_TOKEN, BLOBPRROPERTY_READ_WRITE_TOKEN or BLOB_READ_WRITE_TOKEN.',
                 'CONFIG'
             )
         }

@@ -34,3 +34,12 @@ Summary: Client-side image optimization is now integrated into the upload flow. 
 - [x] Created test page at `/test-upload`
 
 Summary: A robust, reusable React component for image uploading is implemented. It supports drag-and-drop, previews, client-side compression, and progress tracking.
+
+## Spec 7: Property Form Integration
+- [x] Enhanced `ImageUploader` with `initialImages` and `onImagesChange` props
+- [x] Replaced upload in `/admin/add` form with `ImageUploader`
+- [x] Replaced upload in `/admin/edit/[id]` form with `ImageUploader` (with initialImages support)
+- [x] Removed old `handleImageUpload` and file input code
+- [x] Build verified successful
+
+Summary: Property forms now use the new `ImageUploader` component. Add form allows uploading images for new properties. Edit form displays existing images and allows adding/removing them seamlessly.

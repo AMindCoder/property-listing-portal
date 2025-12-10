@@ -10,6 +10,8 @@ import { Loader2 } from 'lucide-react';
 interface ImageUploaderProps {
     onUploadComplete: (urls: string[]) => void;
     onUploadError?: (error: any) => void;
+    onImagesChange?: (urls: string[]) => void; // Called whenever images change (add/remove)
+    initialImages?: string[]; // Pre-existing image URLs for edit mode
     maxFiles?: number;
     maxFileSize?: number; // bytes
     folder?: string;
@@ -20,12 +22,15 @@ interface ImageUploaderProps {
 export default function ImageUploader({
     onUploadComplete,
     onUploadError,
+    onImagesChange,
+    initialImages = [],
     maxFiles = 10,
     maxFileSize = 10 * 1024 * 1024, // 10MB
     folder = 'properties',
     className
 }: ImageUploaderProps) {
     const [files, setFiles] = useState<FileWithPreview[]>([]);
+    const [existingImages, setExistingImages] = useState<string[]>(initialImages);
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
     const [error, setError] = useState<string | null>(null);
@@ -33,7 +38,8 @@ export default function ImageUploader({
     const onDrop = useCallback((acceptedFiles: File[]) => {
         setError(null);
 
-        if (files.length + acceptedFiles.length > maxFiles) {
+        const totalCount = existingImages.length + files.length + acceptedFiles.length;
+        if (totalCount > maxFiles) {
             setError(`Maximum ${maxFiles} files allowed`);
             return;
         }
@@ -43,7 +49,7 @@ export default function ImageUploader({
         }));
 
         setFiles(prev => [...prev, ...newFiles]);
-    }, [files, maxFiles]);
+    }, [files, existingImages, maxFiles]);
 
     const handleRemove = (index: number) => {
         setFiles(prev => {
@@ -51,6 +57,17 @@ export default function ImageUploader({
             URL.revokeObjectURL(newFiles[index].preview);
             newFiles.splice(index, 1);
             return newFiles;
+        });
+    };
+
+    const handleRemoveExisting = (index: number) => {
+        setExistingImages(prev => {
+            const newImages = prev.filter((_, i) => i !== index);
+            // Notify parent of change
+            if (onImagesChange) {
+                onImagesChange(newImages);
+            }
+            return newImages;
         });
     };
 
@@ -69,10 +86,17 @@ export default function ImageUploader({
                 compress: true
             });
 
-            const urls = results.map(r => r.url);
-            onUploadComplete(urls);
+            const newUrls = results.map(r => r.url);
+            const allUrls = [...existingImages, ...newUrls];
 
-            // Cleanup
+            // Notify parent with all URLs
+            onUploadComplete(allUrls);
+            if (onImagesChange) {
+                onImagesChange(allUrls);
+            }
+
+            // Update existing images and cleanup new files
+            setExistingImages(allUrls);
             setFiles([]);
 
         } catch (err) {
@@ -93,18 +117,58 @@ export default function ImageUploader({
         <div className={`${styles.container} ${className || ''}`}>
             <DropZone
                 onDrop={onDrop}
-                maxFiles={maxFiles - files.length}
+                maxFiles={maxFiles - existingImages.length - files.length}
                 maxSize={maxFileSize}
-                disabled={uploading || files.length >= maxFiles}
+                disabled={uploading || (existingImages.length + files.length) >= maxFiles}
                 error={error || undefined}
             />
 
-            <PreviewList
-                files={files}
-                onRemove={handleRemove}
-                uploading={uploading}
-                progress={progress}
-            />
+            {/* Existing images */}
+            {existingImages.length > 0 && (
+                <div style={{ marginTop: '1.5rem' }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
+                        Existing Images ({existingImages.length})
+                    </p>
+                    <div className={styles.previewGrid}>
+                        {existingImages.map((url, index) => (
+                            <div key={`existing-${index}`} className={styles.previewItem}>
+                                <img
+                                    src={url}
+                                    alt={`Existing ${index + 1}`}
+                                    className={styles.previewImage}
+                                />
+                                {!uploading && (
+                                    <button
+                                        type="button"
+                                        className={styles.removeBtn}
+                                        onClick={() => handleRemoveExisting(index)}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <line x1="18" y1="6" x2="6" y2="18" />
+                                            <line x1="6" y1="6" x2="18" y2="18" />
+                                        </svg>
+                                    </button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* New files to upload */}
+            {files.length > 0 && (
+                <div style={{ marginTop: '1.5rem' }}>
+                    <p style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
+                        New Images to Upload ({files.length})
+                    </p>
+                    <PreviewList
+                        files={files}
+                        onRemove={handleRemove}
+                        uploading={uploading}
+                        progress={progress}
+                    />
+                </div>
+            )}
 
             {files.length > 0 && (
                 <div className={styles.actions}>
@@ -114,7 +178,7 @@ export default function ImageUploader({
                         onClick={() => setFiles([])}
                         disabled={uploading}
                     >
-                        Clear All
+                        Clear New
                     </button>
 
                     <button
@@ -128,7 +192,7 @@ export default function ImageUploader({
                                 <Loader2 className="animate-spin" size={18} /> Uploading...
                             </span>
                         ) : (
-                            `Upload ${files.length} Images`
+                            `Upload ${files.length} Image${files.length > 1 ? 's' : ''}`
                         )}
                     </button>
                 </div>
