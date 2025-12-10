@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import PropertyCard from './components/PropertyCard'
 import Sidebar from './components/Sidebar'
+import SearchBar from './components/search/SearchBar'
 import Link from 'next/link'
 import Footer from './components/Footer'
 import Header from './components/Header'
@@ -25,15 +27,19 @@ interface Property {
 }
 
 export default function Home() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
   const [properties, setProperties] = useState<Property[]>([])
   const [areas, setAreas] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '')
   const [filters, setFilters] = useState({
-    status: 'AVAILABLE',
-    minPrice: '',
-    maxPrice: '',
-    area: 'ALL',
-    propertyType: 'ALL',
+    status: searchParams.get('status') || 'AVAILABLE',
+    minPrice: searchParams.get('minPrice') || '',
+    maxPrice: searchParams.get('maxPrice') || '',
+    area: searchParams.get('area') || 'ALL',
+    propertyType: searchParams.get('propertyType') || 'ALL',
   })
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true)
@@ -69,6 +75,11 @@ export default function Home() {
     setLoading(true)
     const params = new URLSearchParams()
 
+    // Add search query if present
+    if (searchQuery) {
+      params.append('q', searchQuery)
+    }
+
     if (filters.status) {
       params.append('status', filters.status)
     }
@@ -85,12 +96,27 @@ export default function Home() {
       params.append('propertyType', filters.propertyType)
     }
 
+    // Update URL
+    const newUrl = params.toString() ? `/?${params.toString()}` : '/'
+    window.history.replaceState({}, '', newUrl)
+
     try {
-      const response = await fetch(`/api/properties?${params.toString()}&t=${Date.now()}`, { cache: 'no-store' })
+      // Use search API if there's a query, otherwise use existing properties API
+      const endpoint = searchQuery ? '/api/properties/search' : '/api/properties'
+      const response = await fetch(`${endpoint}?${params.toString()}&t=${Date.now()}`, { cache: 'no-store' })
       const data = await response.json()
-      setProperties(data)
+
+      // Handle search API response format
+      if (data.success) {
+        setProperties(data.data.properties)
+      } else if (Array.isArray(data)) {
+        setProperties(data)
+      } else {
+        setProperties([])
+      }
     } catch (error) {
       console.error('Failed to fetch properties:', error)
+      setProperties([])
     } finally {
       setLoading(false)
     }
@@ -98,8 +124,11 @@ export default function Home() {
 
   useEffect(() => {
     fetchAreas()
-    fetchProperties()
   }, [])
+
+  useEffect(() => {
+    fetchProperties()
+  }, [searchQuery])
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFilters({
@@ -120,8 +149,15 @@ export default function Home() {
       area: 'ALL',
       propertyType: 'ALL',
     })
-    // Fetch will be triggered by the next Apply click or effect
     setTimeout(() => fetchProperties(), 0)
+  }
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query)
+  }
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
   }
 
   return (
@@ -142,6 +178,18 @@ export default function Home() {
         />
 
         <div className="content-area">
+          <div className="search-section">
+            <SearchBar
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onSearch={handleSearch}
+            />
+            {searchQuery && (
+              <div className="search-result-count">
+                {loading ? 'Searching...' : `${properties.length} properties found`}
+              </div>
+            )}
+          </div>
           {loading ? (
             <div className="loading">Loading properties...</div>
           ) : properties.length === 0 ? (
