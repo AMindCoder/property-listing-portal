@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import PropertyCard from './components/PropertyCard'
 import Sidebar from './components/Sidebar'
@@ -26,7 +26,7 @@ interface Property {
   images: string[]
 }
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -209,6 +209,14 @@ export default function Home() {
       </main>
       <Footer />
     </div>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="loading">Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   )
 }
 
