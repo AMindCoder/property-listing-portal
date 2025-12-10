@@ -4,11 +4,9 @@ import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
 import GalleryGrid from './components/GalleryGrid';
 import { CategoryWithGallery } from '@/types/services';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
-
-const prisma = new PrismaClient();
 
 const serviceCategories = [
     { name: 'Foundations & Structure', slug: 'foundations' },
