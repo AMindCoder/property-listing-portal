@@ -75,6 +75,7 @@ export default function AdminDashboard() {
                     {/* Desktop Menu */}
                     <div className="admin-header-buttons hidden md:flex">
                         <Link href="/" className="btn btn-secondary">View Site</Link>
+                        <Link href="/admin/services" className="btn btn-secondary">Services</Link>
                         <Link href="/admin/leads" className="btn btn-secondary">Leads</Link>
                         <Link href="/admin/add" className="btn btn-primary">Add Property</Link>
                         <button onClick={handleLogout} className="btn btn-secondary">Logout</button>
@@ -110,6 +111,20 @@ export default function AdminDashboard() {
                             onClick={() => setMenuOpen(false)}
                         >
                             View Site
+                        </Link>
+                        <Link
+                            href="/admin/services"
+                            className="btn btn-secondary"
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Services
+                        </Link>
+                        <Link
+                            href="/admin/leads"
+                            className="btn btn-secondary"
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            Leads
                         </Link>
                         <Link
                             href="/admin/add"

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 interface HeaderProps {
     toggleSidebar?: () => void
@@ -10,6 +10,15 @@ interface HeaderProps {
     backLink?: string
     backLabel?: string
 }
+
+const serviceCategories = [
+    { name: 'Foundations & Structure', slug: 'foundations' },
+    { name: 'Walls & Masonry', slug: 'walls' },
+    { name: 'Interiors & Finishes', slug: 'interiors' },
+    { name: 'Roofing & Ceilings', slug: 'ceilings' },
+    { name: 'Stairs & Railings', slug: 'stairs' },
+    { name: 'Exteriors & Landscaping', slug: 'exteriors' },
+];
 
 export default function Header({
     toggleSidebar,
@@ -19,8 +28,38 @@ export default function Header({
 }: HeaderProps) {
     const pathname = usePathname()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false)
+    const [mobileServicesOpen, setMobileServicesOpen] = useState(false)
+    const dropdownRef = useRef<HTMLDivElement>(null)
+    const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
     const isActive = (path: string) => pathname === path
+    const isServicesActive = pathname?.startsWith('/services')
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setServicesDropdownOpen(false)
+            }
+        }
+
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [])
+
+    const handleMouseEnter = () => {
+        if (dropdownTimeoutRef.current) {
+            clearTimeout(dropdownTimeoutRef.current)
+        }
+        setServicesDropdownOpen(true)
+    }
+
+    const handleMouseLeave = () => {
+        dropdownTimeoutRef.current = setTimeout(() => {
+            setServicesDropdownOpen(false)
+        }, 200)
+    }
 
     return (
         <header className="header">
@@ -54,12 +93,53 @@ export default function Header({
                         >
                             Home
                         </Link>
-                        <Link
-                            href="/services/construction"
-                            className={`nav-link ${isActive('/services/construction') ? 'nav-link-active' : ''}`}
+
+                        {/* Services Dropdown */}
+                        <div
+                            ref={dropdownRef}
+                            className="nav-dropdown"
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
                         >
-                            Construction
-                        </Link>
+                            <button
+                                className={`nav-link nav-dropdown-trigger ${isServicesActive ? 'nav-link-active' : ''}`}
+                                onClick={() => setServicesDropdownOpen(!servicesDropdownOpen)}
+                            >
+                                Services
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        marginLeft: '0.25rem',
+                                        transform: servicesDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.2s'
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+
+                            {servicesDropdownOpen && (
+                                <div className="nav-dropdown-menu">
+                                    {serviceCategories.map((category) => (
+                                        <Link
+                                            key={category.slug}
+                                            href={`/services/${category.slug}`}
+                                            className={`nav-dropdown-item ${pathname === `/services/${category.slug}` ? 'nav-dropdown-item-active' : ''}`}
+                                            onClick={() => setServicesDropdownOpen(false)}
+                                        >
+                                            {category.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         <Link
                             href="/login"
                             className={`nav-link ${isActive('/login') || pathname?.startsWith('/admin') ? 'nav-link-active' : ''}`}
@@ -110,13 +190,51 @@ export default function Header({
                         >
                             Home
                         </Link>
-                        <Link
-                            href="/services/construction"
-                            className={`mobile-nav-link ${isActive('/services/construction') ? 'mobile-nav-link-active' : ''}`}
-                            onClick={() => setMobileMenuOpen(false)}
-                        >
-                            Construction Services
-                        </Link>
+
+                        {/* Mobile Services Accordion */}
+                        <div>
+                            <button
+                                className={`mobile-nav-link mobile-nav-accordion ${isServicesActive ? 'mobile-nav-link-active' : ''}`}
+                                onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                                style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                            >
+                                Services
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    style={{
+                                        transform: mobileServicesOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 0.2s'
+                                    }}
+                                >
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                            </button>
+
+                            {mobileServicesOpen && (
+                                <div className="mobile-nav-submenu">
+                                    {serviceCategories.map((category) => (
+                                        <Link
+                                            key={category.slug}
+                                            href={`/services/${category.slug}`}
+                                            className={`mobile-nav-sublink ${pathname === `/services/${category.slug}` ? 'mobile-nav-link-active' : ''}`}
+                                            onClick={() => {
+                                                setMobileServicesOpen(false)
+                                                setMobileMenuOpen(false)
+                                            }}
+                                        >
+                                            {category.name}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         <Link
                             href="/login"
                             className={`mobile-nav-link ${isActive('/login') || pathname?.startsWith('/admin') ? 'mobile-nav-link-active' : ''}`}

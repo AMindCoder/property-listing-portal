@@ -173,7 +173,7 @@ export default function PropertyDetailClient({ property }: PropertyDetailClientP
                             <h3 className="text-xl font-bold text-[var(--copper-500)]">Planning to build?</h3>
                             <p className="text-gray-600">Get expert construction services for this plot.</p>
                         </div>
-                        <Link href="/services/construction" className="btn btn-primary whitespace-nowrap">
+                        <Link href="/services" className="btn btn-primary whitespace-nowrap">
                             🏗️ Build Here?
                         </Link>
                     </div>

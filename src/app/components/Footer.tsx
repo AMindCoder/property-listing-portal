@@ -22,7 +22,7 @@ export default function Footer() {
                         <h4 className="footer-heading">Quick Links</h4>
                         <nav className="footer-nav">
                             <Link href="/" className="footer-link">Home</Link>
-                            <Link href="/services/construction" className="footer-link">Construction Services</Link>
+                            <Link href="/services" className="footer-link">Services</Link>
                             <Link href="/admin" className="footer-link">Admin Portal</Link>
                         </nav>
                     </div>

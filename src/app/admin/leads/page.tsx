@@ -110,8 +110,8 @@ export default function LeadsDashboard() {
                             <Link href="/" className={`nav-link ${pathname === '/' ? 'nav-link-active' : ''}`}>
                                 Home
                             </Link>
-                            <Link href="/services/construction" className={`nav-link ${pathname === '/services/construction' ? 'nav-link-active' : ''}`}>
-                                Construction
+                            <Link href="/services" className={`nav-link ${pathname?.startsWith('/services') ? 'nav-link-active' : ''}`}>
+                                Services
                             </Link>
                             <Link href="/admin" className={`nav-link ${pathname?.startsWith('/admin') ? 'nav-link-active' : ''}`}>
                                 Admin
@@ -138,8 +138,8 @@ export default function LeadsDashboard() {
                             <Link href="/" className={`mobile-nav-link ${pathname === '/' ? 'mobile-nav-link-active' : ''}`}>
                                 Home
                             </Link>
-                            <Link href="/services/construction" className={`mobile-nav-link ${pathname === '/services/construction' ? 'mobile-nav-link-active' : ''}`}>
-                                Construction
+                            <Link href="/services" className={`mobile-nav-link ${pathname?.startsWith('/services') ? 'mobile-nav-link-active' : ''}`}>
+                                Services
                             </Link>
                             <Link href="/admin" className={`mobile-nav-link ${pathname?.startsWith('/admin') ? 'mobile-nav-link-active' : ''}`}>
                                 Admin
@@ -225,8 +225,8 @@ export default function LeadsDashboard() {
                                                 value={lead.status}
                                                 onChange={(e) => handleStatusUpdate(lead.id, e.target.value)}
                                                 className={`px-2 py-1 rounded-full text-xs font-medium border-none cursor-pointer ${lead.status === 'NEW' ? 'bg-green-100 text-green-800' :
-                                                        lead.status === 'LOST' ? 'bg-red-100 text-red-800' :
-                                                            'bg-gray-100 text-gray-800'
+                                                    lead.status === 'LOST' ? 'bg-red-100 text-red-800' :
+                                                        'bg-gray-100 text-gray-800'
                                                     }`}
                                             >
                                                 <option value="NEW">New</option>
