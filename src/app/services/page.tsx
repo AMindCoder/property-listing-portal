@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { PrismaClient } from '@prisma/client';
+
+export const dynamic = 'force-dynamic';
+
+const prisma = new PrismaClient();
 
 interface ServiceCategory {
     id: string;
@@ -15,16 +20,16 @@ interface ServiceCategory {
 
 async function getServiceCategories(): Promise<ServiceCategory[]> {
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/services`, {
-            cache: 'no-store',
+        const categories = await prisma.serviceCategory.findMany({
+            where: { isActive: true },
+            orderBy: { displayOrder: 'asc' },
+            include: {
+                _count: {
+                    select: { galleryItems: true },
+                },
+            },
         });
-
-        if (!res.ok) {
-            console.error('Failed to fetch categories');
-            return [];
-        }
-
-        return res.json();
+        return categories;
     } catch (error) {
         console.error('Error fetching categories:', error);
         return [];

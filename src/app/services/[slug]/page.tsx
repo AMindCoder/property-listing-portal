@@ -4,6 +4,11 @@ import Header from '@/app/components/Header';
 import Footer from '@/app/components/Footer';
 import GalleryGrid from './components/GalleryGrid';
 import { CategoryWithGallery } from '@/types/services';
+import { PrismaClient } from '@prisma/client';
+
+export const dynamic = 'force-dynamic';
+
+const prisma = new PrismaClient();
 
 const serviceCategories = [
     { name: 'Foundations & Structure', slug: 'foundations' },
@@ -16,16 +21,17 @@ const serviceCategories = [
 
 async function getCategoryWithGallery(slug: string): Promise<CategoryWithGallery | null> {
     try {
-        const res = await fetch(
-            `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/services/${slug}`,
-            { cache: 'no-store' }
-        );
+        const category = await prisma.serviceCategory.findUnique({
+            where: { slug },
+            include: {
+                galleryItems: {
+                    where: { isActive: true },
+                    orderBy: { displayOrder: 'asc' },
+                },
+            },
+        });
 
-        if (!res.ok) {
-            return null;
-        }
-
-        return res.json();
+        return category;
     } catch (error) {
         console.error('Error fetching category:', error);
         return null;
@@ -185,9 +191,3 @@ export default async function ServiceCategoryPage({ params }: { params: Promise<
     );
 }
 
-// Generate static params for all service categories
-export async function generateStaticParams() {
-    return serviceCategories.map((cat) => ({
-        slug: cat.slug,
-    }));
-}
