@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { StorageFactory } from '@/lib/storage'
+import { requireAdmin, UnauthorizedError, ForbiddenError } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,6 +31,9 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Require admin access for updating properties
+        await requireAdmin()
+
         const { id } = await params
         const body = await request.json()
 
@@ -62,6 +66,12 @@ export async function PUT(
         })
         return NextResponse.json(property)
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 })
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 })
+        }
         console.error('API Error:', error)
         return NextResponse.json({ error: 'Failed to update property' }, { status: 500 })
     }
@@ -72,6 +82,9 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Require admin access for deleting properties
+        await requireAdmin()
+
         const { id } = await params
         console.log(`[API] Attempting to delete property with ID: ${id}`)
 
@@ -104,6 +117,12 @@ export async function DELETE(
         console.log(`[API] Successfully deleted property: ${id}`)
         return NextResponse.json({ message: 'Property deleted successfully', deleted })
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 })
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 })
+        }
         console.error('[API] Error deleting property:', error)
         return NextResponse.json({ error: 'Failed to delete property', details: String(error) }, { status: 500 })
     }

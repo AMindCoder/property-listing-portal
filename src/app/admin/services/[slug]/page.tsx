@@ -9,6 +9,7 @@ import ProjectDetailView from './components/ProjectDetailView';
 import ProjectEditModal from './components/ProjectEditModal';
 import MoveImagesModal from './components/MoveImagesModal';
 import AdminHeader from '@/app/components/AdminHeader';
+import { useUser } from '@/app/contexts/UserContext';
 
 type ViewMode = 'projects' | 'project-detail';
 
@@ -20,6 +21,8 @@ interface ViewState {
 export default function AdminCategoryGalleryPage({ params }: { params: Promise<{ slug: string }> }) {
     const resolvedParams = use(params);
     const slug = resolvedParams.slug;
+    const { user } = useUser();
+    const canModify = user?.canModify ?? false;
 
     // View state
     const [viewState, setViewState] = useState<ViewState>({
@@ -293,6 +296,7 @@ export default function AdminCategoryGalleryPage({ params }: { params: Promise<{
                     onNewProject={handleNewProject}
                     onRefresh={fetchProjects}
                     categorySlug={slug}
+                    canModify={canModify}
                 />
             ) : currentProject ? (
                 <ProjectDetailView
@@ -308,6 +312,7 @@ export default function AdminCategoryGalleryPage({ params }: { params: Promise<{
                     onRefresh={handleRefreshProjectDetail}
                     onEditProject={handleEditProject}
                     onMoveImages={handleMoveImages}
+                    canModify={canModify}
                 />
             ) : (
                 <div className="loading">Loading project...</div>

@@ -144,7 +144,7 @@ export default function Header({
                             href="/login"
                             className={`nav-link ${isActive('/login') || pathname?.startsWith('/admin') ? 'nav-link-active' : ''}`}
                         >
-                            Admin
+                            Login
                         </Link>
                     </nav>
 
@@ -240,7 +240,7 @@ export default function Header({
                             className={`mobile-nav-link ${isActive('/login') || pathname?.startsWith('/admin') ? 'mobile-nav-link-active' : ''}`}
                             onClick={() => setMobileMenuOpen(false)}
                         >
-                            Admin Portal
+                            Login
                         </Link>
                     </nav>
                 )}

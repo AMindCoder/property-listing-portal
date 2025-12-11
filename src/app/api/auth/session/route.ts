@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getSession } from '@/lib/auth'
+import { getSession, canModify } from '@/lib/auth'
 
 export async function GET() {
   try {
@@ -13,7 +13,9 @@ export async function GET() {
       authenticated: true,
       user: {
         username: session.username,
-        isAdmin: session.isAdmin
+        role: session.role,
+        isAdmin: session.isAdmin, // Backward compatibility
+        canModify: canModify(session)
       }
     })
   } catch (error) {

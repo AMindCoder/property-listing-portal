@@ -13,6 +13,7 @@ interface ProjectDetailViewProps {
     onRefresh: () => void;
     onEditProject: () => void;
     onMoveImages: (imageIds: string[]) => void;
+    canModify?: boolean;
 }
 
 export default function ProjectDetailView({
@@ -24,7 +25,8 @@ export default function ProjectDetailView({
     onAddImages,
     onRefresh,
     onEditProject,
-    onMoveImages
+    onMoveImages,
+    canModify = true
 }: ProjectDetailViewProps) {
     const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
     const [bulkActionLoading, setBulkActionLoading] = useState(false);
@@ -190,35 +192,37 @@ export default function ProjectDetailView({
                         </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                        <button
-                            className="btn btn-secondary"
-                            onClick={onEditProject}
-                            style={{ padding: '0.625rem 1.25rem' }}
-                        >
-                            ✏️ Edit Project
-                        </button>
-                        <button
-                            className="btn btn-danger"
-                            onClick={handleDeleteProject}
-                            disabled={bulkActionLoading}
-                            style={{ padding: '0.625rem 1.25rem' }}
-                        >
-                            🗑️ Delete Project
-                        </button>
-                        <button
-                            className="btn"
-                            onClick={onAddImages}
-                            style={{ padding: '0.625rem 1.25rem' }}
-                        >
-                            + Add Images
-                        </button>
-                    </div>
+                    {canModify && (
+                        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                            <button
+                                className="btn btn-secondary"
+                                onClick={onEditProject}
+                                style={{ padding: '0.625rem 1.25rem' }}
+                            >
+                                ✏️ Edit Project
+                            </button>
+                            <button
+                                className="btn btn-danger"
+                                onClick={handleDeleteProject}
+                                disabled={bulkActionLoading}
+                                style={{ padding: '0.625rem 1.25rem' }}
+                            >
+                                🗑️ Delete Project
+                            </button>
+                            <button
+                                className="btn"
+                                onClick={onAddImages}
+                                style={{ padding: '0.625rem 1.25rem' }}
+                            >
+                                + Add Images
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
             {/* Bulk Actions Bar */}
-            {selectedItems.size > 0 && (
+            {canModify && selectedItems.size > 0 && (
                 <div style={{
                     background: 'var(--bg-tertiary)',
                     padding: '1rem 1.5rem',
@@ -284,25 +288,27 @@ export default function ProjectDetailView({
                                     position: 'relative'
                                 }}
                             >
-                                {/* Checkbox */}
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '0.75rem',
-                                    left: '0.75rem',
-                                    zIndex: 10
-                                }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedItems.has(item.id)}
-                                        onChange={() => toggleItemSelection(item.id)}
-                                        style={{
-                                            width: '20px',
-                                            height: '20px',
-                                            cursor: 'pointer',
-                                            accentColor: 'var(--copper-500)'
-                                        }}
-                                    />
-                                </div>
+                                {/* Checkbox - only show for admins */}
+                                {canModify && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '0.75rem',
+                                        left: '0.75rem',
+                                        zIndex: 10
+                                    }}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedItems.has(item.id)}
+                                            onChange={() => toggleItemSelection(item.id)}
+                                            style={{
+                                                width: '20px',
+                                                height: '20px',
+                                                cursor: 'pointer',
+                                                accentColor: 'var(--copper-500)'
+                                            }}
+                                        />
+                                    </div>
+                                )}
 
                                 {/* Status Badge */}
                                 <div style={{
@@ -342,47 +348,71 @@ export default function ProjectDetailView({
                                         {item.title}
                                     </h3>
 
-                                    <button
-                                        className="btn btn-secondary"
-                                        onClick={() => onEditImage(item)}
-                                        style={{ width: '100%', padding: '0.5rem', fontSize: '0.8125rem' }}
-                                    >
-                                        Edit
-                                    </button>
+                                    {canModify ? (
+                                        <button
+                                            className="btn btn-secondary"
+                                            onClick={() => onEditImage(item)}
+                                            style={{ width: '100%', padding: '0.5rem', fontSize: '0.8125rem' }}
+                                        >
+                                            Edit
+                                        </button>
+                                    ) : (
+                                        <span
+                                            className="btn btn-secondary btn-disabled"
+                                            style={{ width: '100%', padding: '0.5rem', fontSize: '0.8125rem', display: 'block', textAlign: 'center' }}
+                                            title="View-only access"
+                                        >
+                                            View Only
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                         ))}
                     </div>
 
-                    {/* Select All Footer */}
-                    <div style={{ marginTop: '1.5rem', padding: '1rem 0', borderTop: '1px solid var(--border-subtle)' }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-                            <input
-                                type="checkbox"
-                                checked={selectedItems.size === images.length && images.length > 0}
-                                onChange={toggleSelectAll}
-                                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                            />
-                            <span style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', fontWeight: 500 }}>
-                                Select All ({images.length})
-                            </span>
-                        </label>
-                    </div>
+                    {/* Select All Footer - only for admins */}
+                    {canModify && (
+                        <div style={{ marginTop: '1.5rem', padding: '1rem 0', borderTop: '1px solid var(--border-subtle)' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+                                <input
+                                    type="checkbox"
+                                    checked={selectedItems.size === images.length && images.length > 0}
+                                    onChange={toggleSelectAll}
+                                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                                />
+                                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', fontWeight: 500 }}>
+                                    Select All ({images.length})
+                                </span>
+                            </label>
+                        </div>
+                    )}
                 </>
             ) : (
                 <div className="empty-state">
                     <div className="empty-icon">🖼️</div>
                     <h2 className="empty-title">No Images in Project</h2>
                     <p className="empty-message">
-                        Add images to this project to showcase your work
+                        {canModify
+                            ? 'Add images to this project to showcase your work'
+                            : 'No images have been added to this project yet.'}
                     </p>
-                    <button
-                        className="btn"
-                        onClick={onAddImages}
-                        style={{ marginTop: '1.5rem', padding: '0.875rem 2rem' }}
-                    >
-                        + Add Images
-                    </button>
+                    {canModify ? (
+                        <button
+                            className="btn"
+                            onClick={onAddImages}
+                            style={{ marginTop: '1.5rem', padding: '0.875rem 2rem' }}
+                        >
+                            + Add Images
+                        </button>
+                    ) : (
+                        <span
+                            className="btn btn-disabled"
+                            style={{ marginTop: '1.5rem', padding: '0.875rem 2rem' }}
+                            title="View-only access"
+                        >
+                            + Add Images
+                        </span>
+                    )}
                 </div>
             )}
         </div>

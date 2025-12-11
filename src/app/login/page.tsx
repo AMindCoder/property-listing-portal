@@ -56,6 +56,7 @@ function LoginForm() {
                     onChange={(e) => setUsername(e.target.value)}
                     className="filter-input"
                     placeholder="Enter username"
+                    autoComplete="username"
                     autoFocus
                     required
                     disabled={isLoading}
@@ -73,6 +74,7 @@ function LoginForm() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="filter-input"
                     placeholder="Enter password"
+                    autoComplete="current-password"
                     required
                     disabled={isLoading}
                 />
@@ -128,8 +130,8 @@ export default function LoginPage() {
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
                         </div>
-                        <h1 className="text-3xl font-bold text-[var(--text-primary)] font-playfair mb-2">Admin Portal</h1>
-                        <p className="text-[var(--text-secondary)] text-sm">Sign in to access the dashboard</p>
+                        <h1 className="text-3xl font-bold text-[var(--text-primary)] font-playfair mb-2">Portal Login</h1>
+                        <p className="text-[var(--text-secondary)] text-sm">Sign in to continue</p>
                     </div>
 
                     <Suspense fallback={<div className="text-center text-[var(--text-secondary)]">Loading...</div>}>

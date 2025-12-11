@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requireAdmin, UnauthorizedError, ForbiddenError } from '@/lib/auth';
 
 interface MoveImagesRequest {
     imageIds: string[];
@@ -14,6 +15,9 @@ export async function POST(
     { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
+        // Require admin access for moving images
+        await requireAdmin();
+
         const { slug } = await params;
         const body: MoveImagesRequest = await request.json();
 
@@ -61,6 +65,12 @@ export async function POST(
             targetProject: body.targetProjectName,
         });
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 });
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 });
+        }
         console.error('Error moving images:', error);
         return NextResponse.json({ error: 'Failed to move images' }, { status: 500 });
     }

@@ -12,21 +12,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const isValid = await validateCredentials(username, password)
+    const role = await validateCredentials(username, password)
 
-    if (!isValid) {
+    if (!role) {
       return NextResponse.json(
         { error: 'Invalid username or password' },
         { status: 401 }
       )
     }
 
-    const token = await createSession(username)
+    const token = await createSession(username, role)
     await setSessionCookie(token)
 
     return NextResponse.json({
       success: true,
-      message: 'Login successful'
+      message: 'Login successful',
+      role
     })
   } catch (error) {
     console.error('Login error:', error)

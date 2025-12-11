@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdmin, UnauthorizedError, ForbiddenError } from '@/lib/auth'
 
 export async function PUT(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Require admin access for updating leads
+        await requireAdmin()
+
         const { id } = await params
         const body = await request.json()
         const { status } = body
@@ -24,6 +28,12 @@ export async function PUT(
 
         return NextResponse.json(lead)
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 })
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 })
+        }
         console.error('Error updating lead:', error)
         return NextResponse.json(
             { error: 'Error updating lead' },
@@ -37,6 +47,9 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Require admin access for deleting leads
+        await requireAdmin()
+
         const { id } = await params
         await prisma.lead.delete({
             where: { id },
@@ -44,6 +57,12 @@ export async function DELETE(
 
         return NextResponse.json({ message: 'Lead deleted successfully' })
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 })
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 })
+        }
         console.error('Error deleting lead:', error)
         return NextResponse.json(
             { error: 'Error deleting lead' },

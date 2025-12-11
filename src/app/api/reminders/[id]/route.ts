@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isNotificationsEnabled } from '@/lib/feature-flags';
+import { requireAdmin, UnauthorizedError, ForbiddenError } from '@/lib/auth';
 
 /**
  * DELETE /api/reminders/[id]
@@ -19,6 +20,9 @@ export async function DELETE(
   }
 
   try {
+    // Require admin access for deleting reminders
+    await requireAdmin();
+
     const { id } = await params;
 
     // Check if reminder exists
@@ -45,6 +49,12 @@ export async function DELETE(
       message: 'Reminder cancelled',
     });
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return NextResponse.json({ success: false, error: error.message, code: 'UNAUTHORIZED' }, { status: 401 });
+    }
+    if (error instanceof ForbiddenError) {
+      return NextResponse.json({ success: false, error: error.message, code: 'FORBIDDEN' }, { status: 403 });
+    }
     console.error('Error deleting reminder:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to delete reminder' },

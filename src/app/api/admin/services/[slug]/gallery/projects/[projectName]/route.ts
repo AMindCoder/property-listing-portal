@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { del } from '@vercel/blob';
+import { requireAdmin, UnauthorizedError, ForbiddenError } from '@/lib/auth';
 
 interface ProjectUpdateRequest {
     projectName?: string;
@@ -15,6 +16,9 @@ export async function PUT(
     { params }: { params: Promise<{ slug: string; projectName: string }> }
 ) {
     try {
+        // Require admin access for updating project
+        await requireAdmin();
+
         const { slug, projectName } = await params;
         const decodedProjectName = decodeURIComponent(projectName);
         const body: ProjectUpdateRequest = await request.json();
@@ -70,6 +74,12 @@ export async function PUT(
             newProjectName: body.projectName || decodedProjectName,
         });
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 });
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 });
+        }
         console.error('Error updating project:', error);
         return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
     }
@@ -81,6 +91,9 @@ export async function DELETE(
     { params }: { params: Promise<{ slug: string; projectName: string }> }
 ) {
     try {
+        // Require admin access for deleting project
+        await requireAdmin();
+
         const { slug, projectName } = await params;
         const decodedProjectName = decodeURIComponent(projectName);
 
@@ -134,6 +147,12 @@ export async function DELETE(
             deleted: result.count,
         });
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 });
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 });
+        }
         console.error('Error deleting project:', error);
         return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
     }

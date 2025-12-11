@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
 import { v4 as uuidv4 } from 'uuid'
+import { requireAdmin, UnauthorizedError, ForbiddenError } from '@/lib/auth'
 
 export async function POST(request: NextRequest) {
     try {
+        // Require admin access for uploading files
+        await requireAdmin()
+
         console.log('[API Upload] Received upload request')
         const formData = await request.formData()
         const files = formData.getAll('files') as File[]
@@ -59,6 +63,12 @@ export async function POST(request: NextRequest) {
             paths: uploadedPaths
         })
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 })
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 })
+        }
         console.error('[API Upload] Error:', error)
         const errorMessage = error instanceof Error ? error.message : 'Unknown error'
         return NextResponse.json(

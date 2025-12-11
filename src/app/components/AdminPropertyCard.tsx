@@ -15,10 +15,15 @@ interface AdminPropertyCardProps {
         propertyType: string
     }
     onDelete: (id: string) => void
+    canModify?: boolean
 }
 
-export default function AdminPropertyCard({ property, onDelete }: AdminPropertyCardProps) {
+export default function AdminPropertyCard({ property, onDelete, canModify = true }: AdminPropertyCardProps) {
     const handleDelete = () => {
+        if (!canModify) {
+            alert('You do not have permission to delete properties')
+            return
+        }
         if (confirm(`Are you sure you want to delete "${property.title}"?`)) {
             onDelete(property.id)
         }
@@ -61,7 +66,7 @@ export default function AdminPropertyCard({ property, onDelete }: AdminPropertyC
                     {property.title}
                 </h3>
                 <p className="text-[var(--text-secondary)] text-sm mb-2">
-                    📍 {property.location}
+                    {property.location}
                 </p>
                 <p className="text-2xl font-bold text-[var(--copper-500)] mb-3">
                     {new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(property.price)}
@@ -70,37 +75,62 @@ export default function AdminPropertyCard({ property, onDelete }: AdminPropertyC
                 {/* Property Details */}
                 <div className="flex gap-4 text-sm text-[var(--text-secondary)] mb-4">
                     {property.propertyType !== 'Plot' && property.bedrooms !== undefined && property.bedrooms > 0 && (
-                        <span>🛏️ {property.bedrooms} Beds</span>
+                        <span>{property.bedrooms} Beds</span>
                     )}
                     {property.propertyType !== 'Plot' && property.bathrooms !== undefined && property.bathrooms > 0 && (
-                        <span>🚿 {property.bathrooms} Baths</span>
+                        <span>{property.bathrooms} Baths</span>
                     )}
                     <span className="font-medium text-[var(--copper-400)]">{property.propertyType}</span>
                 </div>
 
                 {/* Action Buttons */}
-                {/* Action Buttons */}
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
-                    <Link
-                        href={`/admin/edit/${property.id}`}
-                        className="text-gray-600 hover:text-blue-600 font-medium flex items-center gap-2 transition-colors px-2 py-1 rounded hover:bg-blue-50"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        Edit
-                    </Link>
-                    <button
-                        onClick={handleDelete}
-                        className="text-gray-500 hover:text-red-600 font-medium flex items-center gap-2 transition-colors px-2 py-1 rounded hover:bg-red-50"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                        </svg>
-                        Delete
-                    </button>
+                    {canModify ? (
+                        <Link
+                            href={`/admin/edit/${property.id}`}
+                            className="text-gray-600 hover:text-blue-600 font-medium flex items-center gap-2 transition-colors px-2 py-1 rounded hover:bg-blue-50"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Edit
+                        </Link>
+                    ) : (
+                        <span
+                            className="text-gray-400 font-medium flex items-center gap-2 px-2 py-1 cursor-not-allowed"
+                            title="View-only access"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Edit
+                        </span>
+                    )}
+                    {canModify ? (
+                        <button
+                            onClick={handleDelete}
+                            className="text-gray-500 hover:text-red-600 font-medium flex items-center gap-2 transition-colors px-2 py-1 rounded hover:bg-red-50"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Delete
+                        </button>
+                    ) : (
+                        <span
+                            className="text-gray-400 font-medium flex items-center gap-2 px-2 py-1 cursor-not-allowed"
+                            title="View-only access"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                            Delete
+                        </span>
+                    )}
                 </div>
             </div>
         </div>

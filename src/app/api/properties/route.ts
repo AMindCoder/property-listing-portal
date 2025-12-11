@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { requireAdmin, UnauthorizedError, ForbiddenError } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -62,6 +63,9 @@ export async function OPTIONS() {
 
 export async function POST(request: Request) {
     try {
+        // Require admin access for creating properties
+        await requireAdmin()
+
         const body = await request.json()
 
         // Auto-calculate size if frontSize and backSize are provided but size is not
@@ -74,6 +78,12 @@ export async function POST(request: Request) {
         })
         return NextResponse.json(property)
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 })
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 })
+        }
         console.error('Error creating property:', error)
         return NextResponse.json({ error: 'Failed to create property', details: String(error) }, { status: 500 })
     }

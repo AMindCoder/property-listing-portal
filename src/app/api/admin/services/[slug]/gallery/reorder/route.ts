@@ -1,7 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import { requireAdmin, UnauthorizedError, ForbiddenError } from '@/lib/auth';
 
 // POST /api/admin/services/[slug]/gallery/reorder - Reorder gallery items
 export async function POST(
@@ -9,6 +8,9 @@ export async function POST(
     { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
+        // Require admin access for reordering gallery items
+        await requireAdmin();
+
         const { slug } = await params;
         const body = await request.json();
         const { items } = body; // Array of { id, displayOrder }
@@ -32,6 +34,12 @@ export async function POST(
 
         return NextResponse.json({ success: true });
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 });
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 });
+        }
         console.error('Error reordering gallery items:', error);
         return NextResponse.json(
             { error: 'Failed to reorder gallery items' },

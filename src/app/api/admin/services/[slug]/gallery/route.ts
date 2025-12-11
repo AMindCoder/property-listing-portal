@@ -1,6 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { del } from '@vercel/blob';
+import { requireAdmin, UnauthorizedError, ForbiddenError } from '@/lib/auth';
 
 // GET /api/admin/services/[slug]/gallery - Fetch gallery items (optionally filtered by project)
 export async function GET(
@@ -58,6 +59,9 @@ export async function POST(
     { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
+        // Require admin access for creating gallery items
+        await requireAdmin();
+
         const { slug } = await params;
         const body = await request.json();
 
@@ -101,6 +105,12 @@ export async function POST(
 
         return NextResponse.json(galleryItem, { status: 201 });
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 });
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 });
+        }
         console.error('Error creating gallery item:', error);
         return NextResponse.json(
             { error: 'Failed to create gallery item' },
@@ -115,6 +125,9 @@ export async function PUT(
     { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
+        // Require admin access for updating gallery items
+        await requireAdmin();
+
         const { slug } = await params;
         const body = await request.json();
         const { id, imageUrl: newImageUrl, ...updateData } = body;
@@ -156,6 +169,12 @@ export async function PUT(
 
         return NextResponse.json(galleryItem);
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 });
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 });
+        }
         console.error('Error updating gallery item:', error);
         return NextResponse.json(
             { error: 'Failed to update gallery item' },
@@ -167,6 +186,9 @@ export async function PUT(
 // DELETE /api/admin/services/[slug]/gallery - Delete gallery item(s)
 export async function DELETE(request: Request) {
     try {
+        // Require admin access for deleting gallery items
+        await requireAdmin();
+
         const { searchParams } = new URL(request.url);
         const ids = searchParams.get('ids')?.split(',') || [];
 
@@ -209,6 +231,12 @@ export async function DELETE(request: Request) {
 
         return NextResponse.json({ success: true, deleted: ids.length });
     } catch (error) {
+        if (error instanceof UnauthorizedError) {
+            return NextResponse.json({ error: error.message, code: 'UNAUTHORIZED' }, { status: 401 });
+        }
+        if (error instanceof ForbiddenError) {
+            return NextResponse.json({ error: error.message, code: 'FORBIDDEN' }, { status: 403 });
+        }
         console.error('Error deleting gallery items:', error);
         return NextResponse.json(
             { error: 'Failed to delete gallery items' },

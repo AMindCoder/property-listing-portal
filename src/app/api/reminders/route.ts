@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isNotificationsEnabled } from '@/lib/feature-flags';
+import { requireAdmin, UnauthorizedError, ForbiddenError } from '@/lib/auth';
 import {
   calculateScheduledTime,
   formatScheduledTime,
@@ -66,6 +67,9 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Require admin access for creating reminders
+    await requireAdmin();
+
     const body = await request.json();
     const { leadId, preset } = body;
 
@@ -131,6 +135,12 @@ export async function POST(request: Request) {
       formattedTime: formatScheduledTime(scheduledAt),
     });
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return NextResponse.json({ success: false, error: error.message, code: 'UNAUTHORIZED' }, { status: 401 });
+    }
+    if (error instanceof ForbiddenError) {
+      return NextResponse.json({ success: false, error: error.message, code: 'FORBIDDEN' }, { status: 403 });
+    }
     console.error('Error creating reminder:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to create reminder' },
