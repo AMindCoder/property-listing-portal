@@ -28,10 +28,21 @@ export interface GalleryItem {
     imageAltText: string | null;
     displayOrder: number;
     isActive: boolean;
-    projectName: string | null;
+    projectName: string;  // Required - all images must belong to a project
     projectLocation: string | null;
     completionDate: Date | null;
     tags: string[];
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface ProjectSummary {
+    projectName: string;
+    projectLocation: string | null;
+    completionDate: Date | null;
+    imageCount: number;
+    activeCount: number;
+    previewImages: string[];  // First 4 image URLs for stacked effect
     createdAt: Date;
     updatedAt: Date;
 }
@@ -51,7 +62,7 @@ export interface CreateGalleryItemInput {
     imageUrl: string;
     imageThumbnailUrl?: string;
     imageAltText?: string;
-    projectName?: string;
+    projectName: string;  // Required
     projectLocation?: string;
     completionDate?: Date;
     tags?: string[];

@@ -1,16 +1,16 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { del } from '@vercel/blob';
 
-const prisma = new PrismaClient();
-
-// GET /api/admin/services/[slug]/gallery - Fetch all gallery items for a category
+// GET /api/admin/services/[slug]/gallery - Fetch gallery items (optionally filtered by project)
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ slug: string }> }
 ) {
     try {
         const { slug } = await params;
+        const { searchParams } = new URL(request.url);
+        const projectName = searchParams.get('project');
 
         // First find the category
         const category = await prisma.serviceCategory.findUnique({
@@ -24,11 +24,19 @@ export async function GET(
             );
         }
 
-        // Fetch all gallery items (including inactive for admin)
+        // Build where clause
+        const whereClause: any = {
+            categoryId: category.id,
+        };
+
+        // Filter by project if specified
+        if (projectName) {
+            whereClause.projectName = decodeURIComponent(projectName);
+        }
+
+        // Fetch gallery items (including inactive for admin)
         const galleryItems = await prisma.galleryItem.findMany({
-            where: {
-                categoryId: category.id,
-            },
+            where: whereClause,
             orderBy: {
                 displayOrder: 'asc',
             },

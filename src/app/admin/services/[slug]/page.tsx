@@ -2,63 +2,137 @@
 
 import Link from 'next/link';
 import { useState, useEffect, use } from 'react';
-import { GalleryItem } from '@/types/services';
+import { GalleryItem, ProjectSummary } from '@/types/services';
 import GalleryItemModal from './components/GalleryItemModal';
-import ReorderableGallery from './components/ReorderableGallery';
+import BulkUploadModal from './components/BulkUploadModal';
+import ProjectsView from './components/ProjectsView';
+import ProjectDetailView from './components/ProjectDetailView';
+import ProjectEditModal from './components/ProjectEditModal';
+import MoveImagesModal from './components/MoveImagesModal';
 
-interface Params {
-    slug: string;
+type ViewMode = 'projects' | 'project-detail';
+
+interface ViewState {
+    mode: ViewMode;
+    selectedProject: string | null;
 }
 
 export default function AdminCategoryGalleryPage({ params }: { params: Promise<{ slug: string }> }) {
-    // Unwrap the Promise params in Next.js 15+
     const resolvedParams = use(params);
     const slug = resolvedParams.slug;
 
-    const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+    // View state
+    const [viewState, setViewState] = useState<ViewState>({
+        mode: 'projects',
+        selectedProject: null
+    });
+
+    // Data state
+    const [projects, setProjects] = useState<ProjectSummary[]>([]);
+    const [projectImages, setProjectImages] = useState<GalleryItem[]>([]);
     const [categoryName, setCategoryName] = useState('');
     const [loading, setLoading] = useState(true);
-    const [modalOpen, setModalOpen] = useState(false);
+
+    // Modal state
+    const [galleryModalOpen, setGalleryModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<GalleryItem | null>(null);
-    const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
-    const [reorderMode, setReorderMode] = useState(false);
-    const [savingOrder, setSavingOrder] = useState(false);
+    const [bulkModalOpen, setBulkModalOpen] = useState(false);
+    const [projectEditModalOpen, setProjectEditModalOpen] = useState(false);
+    const [moveModalOpen, setMoveModalOpen] = useState(false);
+    const [imagesToMove, setImagesToMove] = useState<string[]>([]);
 
-    useEffect(() => {
-        fetchGalleryItems();
-    }, [slug]);
-
-    const fetchGalleryItems = async () => {
-        setLoading(true);
+    // Fetch projects list
+    const fetchProjects = async () => {
         try {
-            const res = await fetch(`/api/admin/services/${slug}/gallery`);
+            const res = await fetch(`/api/admin/services/${slug}/gallery/projects`);
             if (res.ok) {
-                const items = await res.json();
-                setGalleryItems(items);
-            }
-
-            // Also fetch category details
-            const catRes = await fetch(`/api/services/${slug}`);
-            if (catRes.ok) {
-                const category = await catRes.json();
-                setCategoryName(category.name);
+                const data = await res.json();
+                setProjects(data);
             }
         } catch (error) {
-            console.error('Error fetching gallery items:', error);
-        } finally {
-            setLoading(false);
+            console.error('Error fetching projects:', error);
         }
     };
 
-    const handleSave = async (data: any) => {
+    // Fetch images for a specific project
+    const fetchProjectImages = async (projectName: string) => {
         try {
-            const url = data.id
-                ? `/api/admin/services/${slug}/gallery`
-                : `/api/admin/services/${slug}/gallery`;
+            const res = await fetch(`/api/admin/services/${slug}/gallery?project=${encodeURIComponent(projectName)}`);
+            if (res.ok) {
+                const images = await res.json();
+                setProjectImages(images);
+            }
+        } catch (error) {
+            console.error('Error fetching project images:', error);
+        }
+    };
 
+    // Fetch category name
+    const fetchCategory = async () => {
+        try {
+            const res = await fetch(`/api/services/${slug}`);
+            if (res.ok) {
+                const category = await res.json();
+                setCategoryName(category.name);
+            }
+        } catch (error) {
+            console.error('Error fetching category:', error);
+        }
+    };
+
+    // Initial load
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true);
+            await Promise.all([fetchProjects(), fetchCategory()]);
+            setLoading(false);
+        };
+        loadData();
+    }, [slug]);
+
+    // Load project images when selecting a project
+    useEffect(() => {
+        if (viewState.mode === 'project-detail' && viewState.selectedProject) {
+            fetchProjectImages(viewState.selectedProject);
+        }
+    }, [viewState.mode, viewState.selectedProject, slug]);
+
+    // Get current project summary
+    const currentProject = projects.find(p => p.projectName === viewState.selectedProject);
+
+    // Navigate to project detail view
+    const handleProjectClick = (projectName: string) => {
+        setViewState({
+            mode: 'project-detail',
+            selectedProject: projectName
+        });
+    };
+
+    // Navigate back to projects view
+    const handleBackToProjects = () => {
+        setViewState({
+            mode: 'projects',
+            selectedProject: null
+        });
+        setProjectImages([]);
+        fetchProjects(); // Refresh projects list
+    };
+
+    // Open bulk upload modal for new project
+    const handleNewProject = () => {
+        setBulkModalOpen(true);
+    };
+
+    // Open bulk upload modal for adding to current project
+    const handleAddImages = () => {
+        setBulkModalOpen(true);
+    };
+
+    // Handle saving gallery item (edit or create)
+    const handleSaveGalleryItem = async (data: any) => {
+        try {
             const method = data.id ? 'PUT' : 'POST';
-
-            const res = await fetch(url, {
+            const res = await fetch(`/api/admin/services/${slug}/gallery`, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -68,8 +142,13 @@ export default function AdminCategoryGalleryPage({ params }: { params: Promise<{
                 throw new Error('Failed to save');
             }
 
-            await fetchGalleryItems();
-            setModalOpen(false);
+            // Refresh data
+            if (viewState.mode === 'project-detail' && viewState.selectedProject) {
+                await fetchProjectImages(viewState.selectedProject);
+            }
+            await fetchProjects();
+
+            setGalleryModalOpen(false);
             setEditingItem(null);
         } catch (error) {
             console.error('Error saving item:', error);
@@ -77,7 +156,8 @@ export default function AdminCategoryGalleryPage({ params }: { params: Promise<{
         }
     };
 
-    const handleDelete = async () => {
+    // Handle deleting gallery item
+    const handleDeleteGalleryItem = async () => {
         if (!editingItem) return;
 
         try {
@@ -89,8 +169,13 @@ export default function AdminCategoryGalleryPage({ params }: { params: Promise<{
                 throw new Error('Failed to delete');
             }
 
-            await fetchGalleryItems();
-            setModalOpen(false);
+            // Refresh data
+            if (viewState.mode === 'project-detail' && viewState.selectedProject) {
+                await fetchProjectImages(viewState.selectedProject);
+            }
+            await fetchProjects();
+
+            setGalleryModalOpen(false);
             setEditingItem(null);
         } catch (error) {
             console.error('Error deleting item:', error);
@@ -98,135 +183,60 @@ export default function AdminCategoryGalleryPage({ params }: { params: Promise<{
         }
     };
 
-    const handleBulkDelete = async () => {
-        if (selectedItems.size === 0) return;
-
-        if (!confirm(`Delete ${selectedItems.size} item(s)? This cannot be undone.`)) {
-            return;
-        }
-
-        try {
-            const ids = Array.from(selectedItems).join(',');
-            const res = await fetch(`/api/admin/services/${slug}/gallery?ids=${ids}`, {
-                method: 'DELETE',
-            });
-
-            if (!res.ok) {
-                throw new Error('Failed to delete');
-            }
-
-            setSelectedItems(new Set());
-            await fetchGalleryItems();
-        } catch (error) {
-            console.error('Error deleting items:', error);
-            alert('Failed to delete items');
+    // Handle bulk upload success
+    const handleBulkUploadSuccess = async () => {
+        await fetchProjects();
+        if (viewState.mode === 'project-detail' && viewState.selectedProject) {
+            await fetchProjectImages(viewState.selectedProject);
         }
     };
 
-    const toggleItemSelection = (itemId: string) => {
-        const newSelected = new Set(selectedItems);
-        if (newSelected.has(itemId)) {
-            newSelected.delete(itemId);
-        } else {
-            newSelected.add(itemId);
-        }
-        setSelectedItems(newSelected);
+    // Handle project edit
+    const handleEditProject = () => {
+        setProjectEditModalOpen(true);
     };
 
-    const toggleSelectAll = () => {
-        if (selectedItems.size === galleryItems.length) {
-            setSelectedItems(new Set());
-        } else {
-            setSelectedItems(new Set(galleryItems.map(item => item.id)));
-        }
-    };
-
-    const handleReorder = async (reorderedItems: GalleryItem[]) => {
-        setSavingOrder(true);
-        try {
-            const payload = {
-                items: reorderedItems.map((item, index) => ({
-                    id: item.id,
-                    displayOrder: index + 1
-                }))
-            };
-
-            const res = await fetch(`/api/admin/services/${slug}/gallery/reorder`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-
-            if (!res.ok) {
-                throw new Error('Failed to save order');
-            }
-
-            // Update local state
-            setGalleryItems(reorderedItems);
-        } catch (error) {
-            console.error('Error saving order:', error);
-            alert('Failed to save new order');
-            // Refresh from server on error
-            await fetchGalleryItems();
-        } finally {
-            setSavingOrder(false);
-        }
-    };
-
-    const handleBulkActivate = async () => {
-        if (selectedItems.size === 0) return;
-
-        try {
-            const promises = Array.from(selectedItems).map(async (id) => {
-                const res = await fetch(`/api/admin/services/${slug}/gallery`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id, isActive: true }),
-                });
-                return res.ok;
-            });
-
-            const results = await Promise.all(promises);
-            if (results.every(r => r)) {
-                await fetchGalleryItems();
-                setSelectedItems(new Set());
+    // Handle project edit save
+    const handleProjectEditSave = async () => {
+        await fetchProjects();
+        // If project was renamed, we need to update the view state
+        // The modal will have triggered a re-fetch of projects
+        if (viewState.selectedProject) {
+            // Try to find the project by old name first
+            const stillExists = projects.find(p => p.projectName === viewState.selectedProject);
+            if (!stillExists) {
+                // Project was renamed, go back to projects view
+                handleBackToProjects();
             } else {
-                alert('Some items failed to activate');
+                await fetchProjectImages(viewState.selectedProject);
             }
-        } catch (error) {
-            console.error('Error activating items:', error);
-            alert('Failed to activate items');
         }
     };
 
-    const handleBulkDeactivate = async () => {
-        if (selectedItems.size === 0) return;
+    // Handle move images
+    const handleMoveImages = (imageIds: string[]) => {
+        setImagesToMove(imageIds);
+        setMoveModalOpen(true);
+    };
 
-        try {
-            const promises = Array.from(selectedItems).map(async (id) => {
-                const res = await fetch(`/api/admin/services/${slug}/gallery`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id, isActive: false }),
-                });
-                return res.ok;
-            });
+    // Handle move success
+    const handleMoveSuccess = async () => {
+        await fetchProjects();
+        if (viewState.mode === 'project-detail' && viewState.selectedProject) {
+            await fetchProjectImages(viewState.selectedProject);
+        }
+    };
 
-            const results = await Promise.all(promises);
-            if (results.every(r => r)) {
-                await fetchGalleryItems();
-                setSelectedItems(new Set());
-            } else {
-                alert('Some items failed to deactivate');
-            }
-        } catch (error) {
-            console.error('Error deactivating items:', error);
-            alert('Failed to deactivate items');
+    // Handle refresh for project detail view
+    const handleRefreshProjectDetail = async () => {
+        await fetchProjects();
+        if (viewState.selectedProject) {
+            await fetchProjectImages(viewState.selectedProject);
         }
     };
 
     if (loading) {
-        return <div className="loading">Loading gallery items...</div>;
+        return <div className="loading">Loading...</div>;
     }
 
     return (
@@ -238,7 +248,21 @@ export default function AdminCategoryGalleryPage({ params }: { params: Promise<{
                     {' > '}
                     <Link href="/admin/services" style={{ color: 'var(--text-tertiary)', textDecoration: 'none' }}>Services</Link>
                     {' > '}
-                    <span style={{ color: 'var(--copper-400)' }}>{categoryName}</span>
+                    {viewState.mode === 'projects' ? (
+                        <span style={{ color: 'var(--copper-400)' }}>{categoryName}</span>
+                    ) : (
+                        <>
+                            <Link
+                                href="#"
+                                onClick={(e) => { e.preventDefault(); handleBackToProjects(); }}
+                                style={{ color: 'var(--text-tertiary)', textDecoration: 'none' }}
+                            >
+                                {categoryName}
+                            </Link>
+                            {' > '}
+                            <span style={{ color: 'var(--copper-400)' }}>{viewState.selectedProject}</span>
+                        </>
+                    )}
                 </nav>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -253,247 +277,91 @@ export default function AdminCategoryGalleryPage({ params }: { params: Promise<{
                             {categoryName}
                         </h1>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-                            {galleryItems.length} gallery {galleryItems.length === 1 ? 'item' : 'items'}
+                            {viewState.mode === 'projects'
+                                ? `${projects.length} project${projects.length !== 1 ? 's' : ''}`
+                                : `${projectImages.length} image${projectImages.length !== 1 ? 's' : ''} in ${viewState.selectedProject}`
+                            }
                         </p>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                        {galleryItems.length > 1 && (
-                            <button
-                                className={reorderMode ? 'btn btn-secondary' : 'btn'}
-                                onClick={() => {
-                                    setReorderMode(!reorderMode);
-                                    setSelectedItems(new Set()); // Clear selections when switching modes
-                                }}
-                                style={{ padding: '0.875rem 1.75rem' }}
-                                disabled={savingOrder}
-                            >
-                                {savingOrder ? 'Saving...' : reorderMode ? '✓ Done Reordering' : '↕️ Reorder'}
-                            </button>
-                        )}
-                        {!reorderMode && (
-                            <button
-                                className="btn"
-                                onClick={() => {
-                                    setEditingItem(null);
-                                    setModalOpen(true);
-                                }}
-                                style={{ padding: '0.875rem 1.75rem' }}
-                            >
-                                + Add Gallery Item
-                            </button>
-                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Bulk Actions */}
-            {selectedItems.size > 0 && !reorderMode && (
-                <div style={{
-                    background: 'var(--bg-tertiary)',
-                    padding: '1rem 1.5rem',
-                    borderRadius: 'var(--radius-md)',
-                    marginBottom: '2rem',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    border: '1px solid var(--copper-500)'
-                }}>
-                    <span style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-                        {selectedItems.size} item(s) selected
-                    </span>
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                        <button
-                            className="btn btn-secondary"
-                            onClick={handleBulkActivate}
-                            style={{ padding: '0.625rem 1.25rem' }}
-                        >
-                            ✓ Activate
-                        </button>
-                        <button
-                            className="btn btn-secondary"
-                            onClick={handleBulkDeactivate}
-                            style={{ padding: '0.625rem 1.25rem' }}
-                        >
-                            ✗ Deactivate
-                        </button>
-                        <button
-                            className="btn btn-danger"
-                            onClick={handleBulkDelete}
-                            style={{ padding: '0.625rem 1.25rem' }}
-                        >
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            )}
-
-            {/* Gallery Grid */}
-            {galleryItems.length > 0 ? (
-                reorderMode ? (
-                    <div style={{ maxWidth: '800px' }}>
-                        <div style={{
-                            padding: '1rem',
-                            background: 'var(--bg-tertiary)',
-                            borderRadius: 'var(--radius-md)',
-                            marginBottom: '1rem',
-                            border: '1px solid var(--copper-200)'
-                        }}>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', margin: 0 }}>
-                                💡 Drag items to reorder. Changes are saved automatically.
-                            </p>
-                        </div>
-                        <ReorderableGallery items={galleryItems} onReorder={handleReorder} />
-                    </div>
-                ) : (
-                    <div className="property-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))' }}>
-                        {galleryItems.map((item) => (
-                            <div
-                                key={item.id}
-                                style={{
-                                    background: 'var(--bg-secondary)',
-                                    borderRadius: 'var(--radius-lg)',
-                                    border: selectedItems.has(item.id) ? '2px solid var(--copper-500)' : '1px solid var(--border-subtle)',
-                                    overflow: 'hidden',
-                                    position: 'relative'
-                                }}
-                            >
-                                {/* Checkbox */}
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '0.75rem',
-                                    left: '0.75rem',
-                                    zIndex: 10
-                                }}>
-                                    <input
-                                        type="checkbox"
-                                        checked={selectedItems.has(item.id)}
-                                        onChange={() => toggleItemSelection(item.id)}
-                                        style={{
-                                            width: '20px',
-                                            height: '20px',
-                                            cursor: 'pointer',
-                                            accentColor: 'var(--copper-500)'
-                                        }}
-                                    />
-                                </div>
-
-                                {/* Status Badge */}
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '0.75rem',
-                                    right: '0.75rem',
-                                    zIndex: 10
-                                }}>
-                                    <span className={item.isActive ? 'status-available' : 'status-sold'}>
-                                        {item.isActive ? 'Active' : 'Inactive'}
-                                    </span>
-                                </div>
-
-                                <img
-                                    src={item.imageUrl}
-                                    alt={item.imageAltText || item.title}
-                                    style={{
-                                        width: '100%',
-                                        height: '200px',
-                                        objectFit: 'cover',
-                                        borderBottom: '1px solid var(--border-subtle)'
-                                    }}
-                                />
-
-                                <div style={{ padding: '1.25rem' }}>
-                                    <h3 style={{
-                                        fontSize: '1.125rem',
-                                        fontWeight: 700,
-                                        color: 'var(--text-primary)',
-                                        marginBottom: '0.5rem',
-                                        fontFamily: "'Playfair Display', serif",
-                                        display: '-webkit-box',
-                                        WebkitLineClamp: 2,
-                                        WebkitBoxOrient: 'vertical',
-                                        overflow: 'hidden'
-                                    }}>
-                                        {item.title}
-                                    </h3>
-
-                                    {item.description && (
-                                        <p style={{
-                                            color: 'var(--text-secondary)',
-                                            fontSize: '0.875rem',
-                                            marginBottom: '1rem',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 2,
-                                            WebkitBoxOrient: 'vertical',
-                                            overflow: 'hidden'
-                                        }}>
-                                            {item.description}
-                                        </p>
-                                    )}
-
-                                    <button
-                                        className="btn btn-secondary"
-                                        onClick={() => {
-                                            setEditingItem(item);
-                                            setModalOpen(true);
-                                        }}
-                                        style={{ width: '100%', padding: '0.625rem', fontSize: '0.875rem' }}
-                                    >
-                                        Edit
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )
+            {/* Main Content - Two Level Navigation */}
+            {viewState.mode === 'projects' ? (
+                <ProjectsView
+                    projects={projects}
+                    onProjectClick={handleProjectClick}
+                    onNewProject={handleNewProject}
+                    onRefresh={fetchProjects}
+                    categorySlug={slug}
+                />
+            ) : currentProject ? (
+                <ProjectDetailView
+                    project={currentProject}
+                    images={projectImages}
+                    categorySlug={slug}
+                    onBack={handleBackToProjects}
+                    onEditImage={(image) => {
+                        setEditingItem(image);
+                        setGalleryModalOpen(true);
+                    }}
+                    onAddImages={handleAddImages}
+                    onRefresh={handleRefreshProjectDetail}
+                    onEditProject={handleEditProject}
+                    onMoveImages={handleMoveImages}
+                />
             ) : (
-                <div className="empty-state">
-                    <div className="empty-icon">🖼️</div>
-                    <h2 className="empty-title">No Gallery Items Yet</h2>
-                    <p className="empty-message">
-                        Add your first gallery item to showcase your construction work
-                    </p>
-                    <button
-                        className="btn"
-                        onClick={() => {
-                            setEditingItem(null);
-                            setModalOpen(true);
-                        }}
-                        style={{ marginTop: '1.5rem', padding: '0.875rem 2rem' }}
-                    >
-                        + Add Gallery Item
-                    </button>
-                </div>
+                <div className="loading">Loading project...</div>
             )}
 
-            {/* Select All (if items exist) */}
-            {galleryItems.length > 0 && (
-                <div style={{ marginTop: '2rem', padding: '1rem 0', borderTop: '1px solid var(--border-subtle)' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-                        <input
-                            type="checkbox"
-                            checked={selectedItems.size === galleryItems.length && galleryItems.length > 0}
-                            onChange={toggleSelectAll}
-                            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-                        />
-                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem', fontWeight: 500 }}>
-                            Select All ({galleryItems.length})
-                        </span>
-                    </label>
-                </div>
-            )}
-
-            {/* Modal */}
+            {/* Gallery Item Modal (for editing individual images) */}
             <GalleryItemModal
-                isOpen={modalOpen}
+                isOpen={galleryModalOpen}
                 onClose={() => {
-                    setModalOpen(false);
+                    setGalleryModalOpen(false);
                     setEditingItem(null);
                 }}
-                onSave={handleSave}
-                onDelete={editingItem ? handleDelete : undefined}
+                onSave={handleSaveGalleryItem}
+                onDelete={editingItem ? handleDeleteGalleryItem : undefined}
                 categoryId={slug}
                 item={editingItem}
             />
+
+            {/* Bulk Upload Modal */}
+            <BulkUploadModal
+                isOpen={bulkModalOpen}
+                onClose={() => setBulkModalOpen(false)}
+                onSuccess={handleBulkUploadSuccess}
+                categorySlug={slug}
+                defaultProjectName={viewState.selectedProject || undefined}
+            />
+
+            {/* Project Edit Modal */}
+            {currentProject && (
+                <ProjectEditModal
+                    isOpen={projectEditModalOpen}
+                    onClose={() => setProjectEditModalOpen(false)}
+                    onSave={handleProjectEditSave}
+                    categorySlug={slug}
+                    project={currentProject}
+                />
+            )}
+
+            {/* Move Images Modal */}
+            {viewState.selectedProject && (
+                <MoveImagesModal
+                    isOpen={moveModalOpen}
+                    onClose={() => {
+                        setMoveModalOpen(false);
+                        setImagesToMove([]);
+                    }}
+                    onSuccess={handleMoveSuccess}
+                    categorySlug={slug}
+                    imageIds={imagesToMove}
+                    currentProjectName={viewState.selectedProject}
+                    allProjects={projects}
+                />
+            )}
         </div>
     );
 }

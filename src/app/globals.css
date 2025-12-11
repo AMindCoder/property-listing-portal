@@ -2430,3 +2430,156 @@ a.logo {
     height: 40px;
   }
 }
+
+/* ========================================
+   iPod-Style Stacked Photos Effect
+   For project album thumbnails
+   ======================================== */
+
+.project-stack {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  perspective: 1000px;
+  cursor: pointer;
+}
+
+.project-stack .stack-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+.project-stack .stack-layer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Stack positioning - bottom to top */
+.project-stack .stack-layer:nth-child(4) {
+  transform: translate(-8px, -8px) rotateZ(-3deg) scale(0.92);
+  z-index: 1;
+}
+
+.project-stack .stack-layer:nth-child(3) {
+  transform: translate(-4px, -4px) rotateZ(-1.5deg) scale(0.95);
+  z-index: 2;
+}
+
+.project-stack .stack-layer:nth-child(2) {
+  transform: translate(4px, -4px) rotateZ(1.5deg) scale(0.97);
+  z-index: 3;
+}
+
+.project-stack .stack-layer:nth-child(1) {
+  transform: translate(0, 0) scale(1);
+  z-index: 4;
+}
+
+/* Hover: fan out effect */
+.project-stack:hover .stack-layer:nth-child(4) {
+  transform: translate(-24px, -16px) rotateZ(-8deg) scale(0.92);
+}
+
+.project-stack:hover .stack-layer:nth-child(3) {
+  transform: translate(-12px, -8px) rotateZ(-4deg) scale(0.95);
+}
+
+.project-stack:hover .stack-layer:nth-child(2) {
+  transform: translate(12px, -8px) rotateZ(4deg) scale(0.97);
+}
+
+.project-stack:hover .stack-layer:nth-child(1) {
+  transform: translate(0, 4px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Empty stack placeholder */
+.project-stack .stack-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  font-size: 3rem;
+}
+
+/* Project card container */
+.project-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-card:hover {
+  border-color: var(--copper-400);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.project-card-info {
+  text-align: center;
+  width: 100%;
+}
+
+.project-card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-card-meta {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.project-card-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: var(--copper-100);
+  color: var(--copper-700);
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+/* Projects grid */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+@media (max-width: 640px) {
+  .project-stack {
+    width: 200px;
+    height: 200px;
+  }
+
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
