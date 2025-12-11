@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useState, useEffect, use } from 'react';
 import { GalleryItem, ProjectSummary } from '@/types/services';
 import GalleryItemModal from './components/GalleryItemModal';
@@ -9,6 +8,7 @@ import ProjectsView from './components/ProjectsView';
 import ProjectDetailView from './components/ProjectDetailView';
 import ProjectEditModal from './components/ProjectEditModal';
 import MoveImagesModal from './components/MoveImagesModal';
+import AdminHeader from '@/app/components/AdminHeader';
 
 type ViewMode = 'projects' | 'project-detail';
 
@@ -235,56 +235,55 @@ export default function AdminCategoryGalleryPage({ params }: { params: Promise<{
         }
     };
 
+    // Build breadcrumbs based on current view
+    const breadcrumbs = viewState.mode === 'projects'
+        ? [
+            { label: 'Services', href: '/admin/services' },
+            { label: categoryName || 'Gallery' }
+          ]
+        : [
+            { label: 'Services', href: '/admin/services' },
+            { label: categoryName || 'Gallery', href: '#' },
+            { label: viewState.selectedProject || 'Project' }
+          ];
+
     if (loading) {
-        return <div className="loading">Loading...</div>;
+        return (
+            <div className="page-gradient">
+                <div className="noise-overlay" />
+                <AdminHeader breadcrumbs={[{ label: 'Services', href: '/admin/services' }, { label: 'Loading...' }]} />
+                <main className="container py-8">
+                    <div className="skeleton-card" style={{ height: '200px', marginBottom: '1.5rem' }} />
+                    <div className="property-grid">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="skeleton-card" style={{ height: '280px' }} />
+                        ))}
+                    </div>
+                </main>
+            </div>
+        );
     }
 
     return (
-        <div style={{ padding: '2rem' }}>
-            {/* Header */}
-            <div style={{ marginBottom: '2rem' }}>
-                <nav style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}>
-                    <Link href="/admin" style={{ color: 'var(--text-tertiary)', textDecoration: 'none' }}>Admin</Link>
-                    {' > '}
-                    <Link href="/admin/services" style={{ color: 'var(--text-tertiary)', textDecoration: 'none' }}>Services</Link>
-                    {' > '}
-                    {viewState.mode === 'projects' ? (
-                        <span style={{ color: 'var(--copper-400)' }}>{categoryName}</span>
-                    ) : (
-                        <>
-                            <Link
-                                href="#"
-                                onClick={(e) => { e.preventDefault(); handleBackToProjects(); }}
-                                style={{ color: 'var(--text-tertiary)', textDecoration: 'none' }}
-                            >
-                                {categoryName}
-                            </Link>
-                            {' > '}
-                            <span style={{ color: 'var(--copper-400)' }}>{viewState.selectedProject}</span>
-                        </>
-                    )}
-                </nav>
+        <div className="page-gradient">
+            <div className="noise-overlay" />
+            <AdminHeader breadcrumbs={breadcrumbs} />
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        <h1 style={{
-                            fontSize: '2.5rem',
-                            fontWeight: 800,
-                            marginBottom: '0.5rem',
-                            fontFamily: "'Playfair Display', serif",
-                            color: 'var(--text-primary)'
-                        }}>
-                            {categoryName}
-                        </h1>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-                            {viewState.mode === 'projects'
-                                ? `${projects.length} project${projects.length !== 1 ? 's' : ''}`
-                                : `${projectImages.length} image${projectImages.length !== 1 ? 's' : ''} in ${viewState.selectedProject}`
-                            }
-                        </p>
+            <main className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+                {/* Page Header */}
+                <div style={{ marginBottom: '2rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <h1 className="page-title">{categoryName}</h1>
+                            <p className="page-subtitle">
+                                {viewState.mode === 'projects'
+                                    ? `${projects.length} project${projects.length !== 1 ? 's' : ''}`
+                                    : `${projectImages.length} image${projectImages.length !== 1 ? 's' : ''} in ${viewState.selectedProject}`
+                                }
+                            </p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
             {/* Main Content - Two Level Navigation */}
             {viewState.mode === 'projects' ? (
@@ -362,6 +361,7 @@ export default function AdminCategoryGalleryPage({ params }: { params: Promise<{
                     allProjects={projects}
                 />
             )}
+            </main>
         </div>
     );
 }

@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import AdminHeader from '../components/AdminHeader'
 import AdminPropertyCard from '../components/AdminPropertyCard'
+import PropertyCardSkeleton from '../components/skeletons/PropertyCardSkeleton'
 
 interface Property {
     id: string
@@ -18,10 +19,8 @@ interface Property {
 }
 
 export default function AdminDashboard() {
-    const router = useRouter()
     const [properties, setProperties] = useState<Property[]>([])
     const [loading, setLoading] = useState(true)
-    const [menuOpen, setMenuOpen] = useState(false)
 
     const fetchProperties = async () => {
         try {
@@ -62,113 +61,55 @@ export default function AdminDashboard() {
         }
     }
 
-    const handleLogout = () => {
-        router.push('/')
-    }
-
     return (
-        <div className="container">
-            <header className="header">
-                <div className="header-content">
-                    <Link href="/" className="logo">PropertyHub</Link>
+        <div className="page-gradient noise-overlay">
+            <AdminHeader showBreadcrumb={false} />
 
-                    {/* Desktop Menu */}
-                    <div className="admin-header-buttons hidden md:flex">
-                        <Link href="/" className="btn btn-secondary">View Site</Link>
-                        <Link href="/admin/services" className="btn btn-secondary">Services</Link>
-                        <Link href="/admin/leads" className="btn btn-secondary">Leads</Link>
-                        <Link href="/admin/add" className="btn btn-primary">Add Property</Link>
-                        <button onClick={handleLogout} className="btn btn-secondary">Logout</button>
+            <main className="container py-8 page-enter">
+                <div className="page-header">
+                    <div>
+                        <h1 className="page-title">Admin Dashboard</h1>
+                        <p className="page-subtitle">Manage your property listings</p>
                     </div>
-
-                    {/* Mobile Burger Menu */}
-                    <button
-                        onClick={() => setMenuOpen(!menuOpen)}
-                        className="admin-burger md:hidden"
-                        aria-label="Toggle menu"
-                    >
-                        {menuOpen ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                    <div className="page-actions">
+                        <Link href="/admin/add" className="btn glow-effect" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
-                        ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="3" y1="12" x2="21" y2="12"></line>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <line x1="3" y1="18" x2="21" y2="18"></line>
-                            </svg>
-                        )}
-                    </button>
-                </div>
-
-                {/* Mobile Menu Dropdown */}
-                {menuOpen && (
-                    <div className="admin-mobile-menu md:hidden">
-                        <Link
-                            href="/"
-                            className="btn btn-secondary"
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            View Site
-                        </Link>
-                        <Link
-                            href="/admin/services"
-                            className="btn btn-secondary"
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Services
-                        </Link>
-                        <Link
-                            href="/admin/leads"
-                            className="btn btn-secondary"
-                            onClick={() => setMenuOpen(false)}
-                        >
-                            Leads
-                        </Link>
-                        <Link
-                            href="/admin/add"
-                            className="btn btn-primary"
-                            onClick={() => setMenuOpen(false)}
-                        >
                             Add Property
                         </Link>
-                        <button
-                            onClick={() => { setMenuOpen(false); handleLogout(); }}
-                            className="btn btn-secondary"
-                        >
-                            Logout
-                        </button>
                     </div>
-                )}
-            </header>
-
-            <main className="py-8">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold">Admin Dashboard</h1>
                 </div>
 
                 {loading ? (
-                    <div className="loading">Loading...</div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[...Array(6)].map((_, i) => (
+                            <PropertyCardSkeleton key={i} />
+                        ))}
+                    </div>
                 ) : properties.length === 0 ? (
                     <div className="empty-state">
-                        <p className="empty-message">No properties yet. Add one to get started!</p>
+                        <div className="empty-icon">🏠</div>
+                        <h2 className="empty-title">No Properties Yet</h2>
+                        <p className="empty-message">Add your first property to get started!</p>
                         <Link href="/admin/add" className="btn btn-primary mt-4 inline-block">
                             Add Property
                         </Link>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {properties.map((property) => (
-                            <AdminPropertyCard
-                                key={property.id}
-                                property={property}
-                                onDelete={handleDelete}
-                            />
+                        {properties.map((property, index) => (
+                            <div key={property.id} className="animate-stagger" style={{ animationDelay: `${index * 50}ms` }}>
+                                <AdminPropertyCard
+                                    property={property}
+                                    onDelete={handleDelete}
+                                />
+                            </div>
                         ))}
                     </div>
                 )}
             </main>
-        </div >
+        </div>
     )
 }

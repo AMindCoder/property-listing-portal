@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { prisma } from '@/lib/prisma';
+import { ServiceIcon } from '../components/icons/ServiceIcons';
 
 export const dynamic = 'force-dynamic';
 
@@ -88,13 +89,10 @@ export default async function ServicesPage() {
                                             background: 'linear-gradient(135deg, var(--navy-700), var(--navy-600))',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontSize: '4rem',
-                                            color: 'var(--copper-400)',
-                                            opacity: 0.5
+                                            justifyContent: 'center'
                                         }}
                                     >
-                                        🏗️
+                                        <ServiceIcon slug={category.slug} size={80} className="text-[var(--copper-400)] opacity-70" />
                                     </div>
                                 )}
 
@@ -138,7 +136,9 @@ export default async function ServicesPage() {
 
                     {categories.length === 0 && (
                         <div className="empty-state">
-                            <div className="empty-icon">🏗️</div>
+                            <div className="empty-icon">
+                                <ServiceIcon slug="foundations-structure" size={48} className="text-[var(--copper-400)]" />
+                            </div>
                             <h2 className="empty-title">Services Coming Soon</h2>
                             <p className="empty-message">
                                 We're currently setting up our service galleries. Please check back soon.

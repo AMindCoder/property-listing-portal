@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import AdminHeader from '../../components/AdminHeader'
+import TableRowSkeleton from '../../components/skeletons/TableRowSkeleton'
 
 interface Reminder {
     id: string
@@ -159,11 +159,11 @@ function ReminderButton({
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 disabled={isLoading}
-                className={`p-2 rounded-lg transition-colors ${
-                    hasReminder
-                        ? 'bg-amber-100 text-amber-600 hover:bg-amber-200'
-                        : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
-                } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`icon-btn ${hasReminder ? 'icon-btn-active' : ''} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                style={{
+                    background: hasReminder ? 'hsla(40, 80%, 50%, 0.15)' : 'transparent',
+                    color: hasReminder ? 'hsl(40, 80%, 50%)' : 'var(--text-secondary)'
+                }}
                 title={hasReminder ? `Reminder: ${formatReminderTime(lead.reminder!.scheduledAt)}` : 'Set reminder'}
             >
                 {isLoading ? (
@@ -179,9 +179,9 @@ function ReminderButton({
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                    <div className="p-2 border-b border-gray-100">
-                        <span className="text-sm font-medium text-gray-700">
+                <div className="absolute right-0 mt-2 w-56 rounded-lg shadow-lg border z-50" style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border-medium)' }}>
+                    <div className="p-2 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+                        <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
                             {hasReminder ? 'Update Reminder' : 'Set Follow-up Reminder'}
                         </span>
                     </div>
@@ -190,7 +190,10 @@ function ReminderButton({
                             <button
                                 key={option.value}
                                 onClick={() => handleSetReminder(option.value)}
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                                className="w-full text-left px-4 py-2 text-sm transition-colors"
+                                style={{ color: 'var(--text-secondary)' }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-tertiary)'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                             >
                                 {option.label}
                             </button>
@@ -198,10 +201,13 @@ function ReminderButton({
                     </div>
                     {hasReminder && (
                         <>
-                            <div className="border-t border-gray-100" />
+                            <div style={{ height: '1px', background: 'var(--border-subtle)' }} />
                             <button
                                 onClick={handleCancelReminder}
-                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                                className="w-full text-left px-4 py-2 text-sm flex items-center gap-2"
+                                style={{ color: 'hsl(0, 60%, 60%)' }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = 'hsla(0, 60%, 40%, 0.1)'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                     <path d="M18 6L6 18M6 6l12 12" />
@@ -225,9 +231,7 @@ export default function LeadsDashboard() {
     const [features, setFeatures] = useState<Features>({ notifications: false })
     const [loading, setLoading] = useState(true)
     const [filterStatus, setFilterStatus] = useState('ALL')
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
-    const pathname = usePathname()
 
     useEffect(() => {
         fetchLeads()
@@ -238,7 +242,7 @@ export default function LeadsDashboard() {
             const response = await fetch('/api/leads?t=' + Date.now())
             if (response.ok) {
                 const data = await response.json()
-                setLeads(data.leads || data) // Handle both new and old response format
+                setLeads(data.leads || data)
                 if (data.features) {
                     setFeatures(data.features)
                 }
@@ -291,7 +295,6 @@ export default function LeadsDashboard() {
     }
 
     const handleReminderSet = async (leadId: string, _preset: ReminderPreset, formattedTime: string) => {
-        // Refresh lead data to get the new reminder
         const response = await fetch(`/api/reminders?leadId=${leadId}`)
         const data = await response.json()
         if (data.success && data.reminder) {
@@ -323,75 +326,36 @@ export default function LeadsDashboard() {
         })
     }
 
+    const getStatusStyle = (status: string) => {
+        switch (status) {
+            case 'NEW':
+                return { background: 'var(--success-bg)', color: 'var(--success-text)' }
+            case 'LOST':
+                return { background: 'hsla(0, 60%, 40%, 0.15)', color: 'hsl(0, 60%, 60%)' }
+            case 'CONVERTED':
+                return { background: 'hsla(210, 80%, 40%, 0.15)', color: 'hsl(210, 80%, 60%)' }
+            default:
+                return { background: 'var(--bg-tertiary)', color: 'var(--text-secondary)' }
+        }
+    }
+
     return (
-        <div>
-            <header className="header">
-                <div className="container">
-                    <div className="header-content">
-                        <div className="header-left">
-                            <Link href="/" className="logo">PropertyHub</Link>
-                        </div>
+        <div className="page-gradient noise-overlay">
+            <AdminHeader breadcrumbs={[{ label: 'Leads' }]} />
 
-                        <nav className="main-nav">
-                            <Link href="/" className={`nav-link ${pathname === '/' ? 'nav-link-active' : ''}`}>
-                                Home
-                            </Link>
-                            <Link href="/services" className={`nav-link ${pathname?.startsWith('/services') ? 'nav-link-active' : ''}`}>
-                                Services
-                            </Link>
-                            <Link href="/admin" className={`nav-link ${pathname?.startsWith('/admin') ? 'nav-link-active' : ''}`}>
-                                Admin
-                            </Link>
-                        </nav>
-
-                        <button
-                            className="mobile-menu-toggle"
-                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                            aria-label="Toggle menu"
-                        >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                {mobileMenuOpen ? (
-                                    <path d="M6 18L18 6M6 6l12 12" />
-                                ) : (
-                                    <path d="M3 12h18M3 6h18M3 18h18" />
-                                )}
-                            </svg>
-                        </button>
+            <main className="container py-8 page-enter">
+                <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                    <div>
+                        <h1 className="text-display" style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>Leads Management</h1>
+                        <p style={{ color: 'var(--text-secondary)' }}>Track and manage your property inquiries</p>
                     </div>
-
-                    {mobileMenuOpen && (
-                        <nav className="mobile-nav">
-                            <Link href="/" className={`mobile-nav-link ${pathname === '/' ? 'mobile-nav-link-active' : ''}`}>
-                                Home
-                            </Link>
-                            <Link href="/services" className={`mobile-nav-link ${pathname?.startsWith('/services') ? 'mobile-nav-link-active' : ''}`}>
-                                Services
-                            </Link>
-                            <Link href="/admin" className={`mobile-nav-link ${pathname?.startsWith('/admin') ? 'mobile-nav-link-active' : ''}`}>
-                                Admin
-                            </Link>
-                        </nav>
-                    )}
-                </div>
-            </header>
-
-            <main className="container py-8">
-                {/* Breadcrumb */}
-                <nav className="breadcrumb">
-                    <Link href="/admin" className="breadcrumb-link">Admin</Link>
-                    <span className="breadcrumb-separator">/</span>
-                    <span className="breadcrumb-current">Leads</span>
-                </nav>
-
-                {/* Page Header */}
-                <div className="page-header">
-                    <h1 className="page-title">Leads Management</h1>
-                    <div className="page-actions">
-                        <label className="filter-label-inline">Filter:</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <label className="filter-label" style={{ marginBottom: 0 }}>Filter:</label>
                         <select
-                            className="filter-select-inline"
+                            className="filter-select"
                             value={filterStatus}
                             onChange={(e) => setFilterStatus(e.target.value)}
+                            style={{ minWidth: '150px' }}
                         >
                             <option value="ALL">All Statuses</option>
                             <option value="NEW">New</option>
@@ -404,56 +368,80 @@ export default function LeadsDashboard() {
                 </div>
 
                 {loading ? (
-                    <div className="loading">Loading leads...</div>
+                    <div style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)', overflow: 'hidden' }}>
+                        <div style={{ background: 'var(--bg-tertiary)', padding: '1rem', borderBottom: '1px solid var(--border-medium)' }}>
+                            <div className="table-skeleton-row" style={{ borderBottom: 'none' }}>
+                                <div className="skeleton" style={{ height: '0.75rem', width: '60px' }} />
+                                <div className="skeleton" style={{ height: '0.75rem', width: '60px' }} />
+                                <div className="skeleton" style={{ height: '0.75rem', width: '60px' }} />
+                                <div className="skeleton" style={{ height: '0.75rem', width: '60px' }} />
+                                <div className="skeleton" style={{ height: '0.75rem', width: '80px' }} />
+                                <div className="skeleton" style={{ height: '0.75rem', width: '60px' }} />
+                                <div className="skeleton" style={{ height: '0.75rem', width: '60px' }} />
+                            </div>
+                        </div>
+                        {[...Array(5)].map((_, i) => (
+                            <TableRowSkeleton key={i} />
+                        ))}
+                    </div>
                 ) : filteredLeads.length === 0 ? (
-                    <div className="text-center py-12 bg-gray-50 rounded-lg">
-                        <p className="text-xl text-gray-500">No leads found.</p>
+                    <div className="empty-state" style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', padding: '4rem 2rem' }}>
+                        <div className="empty-icon">📋</div>
+                        <h2 className="empty-title">No Leads Found</h2>
+                        <p className="empty-message">No leads match the current filter criteria.</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-                            <thead className="bg-gray-100">
+                    <div className="overflow-x-auto" style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                            <thead>
                                 <tr>
-                                    <th className="p-4 text-left">Date</th>
-                                    <th className="p-4 text-left">Name</th>
-                                    <th className="p-4 text-left">Contact</th>
-                                    <th className="p-4 text-left">Purpose</th>
-                                    <th className="p-4 text-left">Property Interest</th>
-                                    <th className="p-4 text-left">Status</th>
-                                    <th className="p-4 text-left">Actions</th>
+                                    <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--copper-400)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', fontWeight: 600 }}>Date</th>
+                                    <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--copper-400)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', fontWeight: 600 }}>Name</th>
+                                    <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--copper-400)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', fontWeight: 600 }}>Contact</th>
+                                    <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--copper-400)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', fontWeight: 600 }}>Purpose</th>
+                                    <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--copper-400)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', fontWeight: 600 }}>Property Interest</th>
+                                    <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--copper-400)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', fontWeight: 600 }}>Status</th>
+                                    <th style={{ padding: '1rem', textAlign: 'left', color: 'var(--copper-400)', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '0.05em', fontWeight: 600 }}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredLeads.map((lead) => (
-                                    <tr key={lead.id} className="border-t hover:bg-gray-50">
-                                        <td className="p-4 text-sm text-gray-600">{formatDate(lead.createdAt)}</td>
-                                        <td className="p-4 font-medium">{lead.name}</td>
-                                        <td className="p-4">
-                                            <div>{lead.phone}</div>
-                                        </td>
-                                        <td className="p-4">
-                                            <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                {filteredLeads.map((lead, index) => (
+                                    <tr
+                                        key={lead.id}
+                                        className="animate-stagger"
+                                        style={{ animationDelay: `${index * 30}ms`, borderTop: '1px solid var(--border-subtle)' }}
+                                    >
+                                        <td style={{ padding: '1rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>{formatDate(lead.createdAt)}</td>
+                                        <td style={{ padding: '1rem', fontWeight: 500, color: 'var(--text-primary)' }}>{lead.name}</td>
+                                        <td style={{ padding: '1rem', color: 'var(--text-secondary)' }}>{lead.phone}</td>
+                                        <td style={{ padding: '1rem' }}>
+                                            <span style={{ padding: '0.25rem 0.75rem', background: 'hsla(210, 80%, 50%, 0.15)', color: 'hsl(210, 80%, 65%)', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 500 }}>
                                                 {lead.purpose}
                                             </span>
                                         </td>
-                                        <td className="p-4">
+                                        <td style={{ padding: '1rem' }}>
                                             {lead.property ? (
-                                                <div className="text-sm">
-                                                    <div className="font-medium">{lead.property.title}</div>
-                                                    <div className="text-gray-500">{lead.property.location}</div>
+                                                <div>
+                                                    <div style={{ fontWeight: 500, color: 'var(--text-primary)', fontSize: '0.875rem' }}>{lead.property.title}</div>
+                                                    <div style={{ color: 'var(--text-tertiary)', fontSize: '0.8125rem' }}>{lead.property.location}</div>
                                                 </div>
                                             ) : (
-                                                <span className="text-gray-400">-</span>
+                                                <span style={{ color: 'var(--text-tertiary)' }}>-</span>
                                             )}
                                         </td>
-                                        <td className="p-4">
+                                        <td style={{ padding: '1rem' }}>
                                             <select
                                                 value={lead.status}
                                                 onChange={(e) => handleStatusUpdate(lead.id, e.target.value)}
-                                                className={`px-2 py-1 rounded-full text-xs font-medium border-none cursor-pointer ${lead.status === 'NEW' ? 'bg-green-100 text-green-800' :
-                                                    lead.status === 'LOST' ? 'bg-red-100 text-red-800' :
-                                                        'bg-gray-100 text-gray-800'
-                                                    }`}
+                                                style={{
+                                                    padding: '0.25rem 0.5rem',
+                                                    borderRadius: '9999px',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 500,
+                                                    border: 'none',
+                                                    cursor: 'pointer',
+                                                    ...getStatusStyle(lead.status)
+                                                }}
                                             >
                                                 <option value="NEW">New</option>
                                                 <option value="CONTACTED">Contacted</option>
@@ -462,8 +450,8 @@ export default function LeadsDashboard() {
                                                 <option value="LOST">Lost</option>
                                             </select>
                                         </td>
-                                        <td className="p-4">
-                                            <div className="flex items-center gap-2">
+                                        <td style={{ padding: '1rem' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                                 {features.notifications && (
                                                     <ReminderButton
                                                         lead={lead}
@@ -473,7 +461,7 @@ export default function LeadsDashboard() {
                                                 )}
                                                 <button
                                                     onClick={() => handleDelete(lead.id)}
-                                                    className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                                    className="icon-btn icon-btn-danger"
                                                     title="Delete Lead"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -491,7 +479,6 @@ export default function LeadsDashboard() {
                 )}
             </main>
 
-            {/* Toast notification */}
             {toast && (
                 <Toast
                     message={toast.message}

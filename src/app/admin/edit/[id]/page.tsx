@@ -2,8 +2,8 @@
 
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { ImageUploader } from '@/components/ui/image-upload'
+import AdminHeader from '@/app/components/AdminHeader'
 
 export default function EditProperty({ params }: { params: Promise<{ id: string }> }) {
     const resolvedParams = use(params)
@@ -111,25 +111,28 @@ export default function EditProperty({ params }: { params: Promise<{ id: string 
 
     if (fetchingData) {
         return (
-            <div className="container">
-                <div className="loading">Loading property...</div>
+            <div className="page-gradient">
+                <div className="noise-overlay" />
+                <AdminHeader breadcrumbs={[{ label: 'Edit Property' }]} />
+                <main className="container py-8">
+                    <div className="max-w-2xl mx-auto">
+                        <div className="skeleton-card" style={{ height: '400px' }} />
+                    </div>
+                </main>
             </div>
         )
     }
 
     return (
-        <div className="container">
-            <header className="header">
-                <div className="header-content">
-                    <Link href="/" className="logo">PropertyHub</Link>
-                    <Link href="/admin" className="btn btn-secondary">Back to Dashboard</Link>
-                </div>
-            </header>
+        <div className="page-gradient">
+            <div className="noise-overlay" />
+            <AdminHeader breadcrumbs={[{ label: 'Edit Property' }]} />
 
-            <main className="py-8 max-w-2xl mx-auto">
-                <h1 className="text-3xl font-bold mb-8">Edit Property</h1>
+            <main className="container py-8">
+                <div className="max-w-2xl mx-auto">
+                    <h1 className="page-title mb-8">Edit Property</h1>
 
-                <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-lg shadow-md">
+                    <form onSubmit={handleSubmit} className="space-y-6 admin-form-card">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="form-group">
                             <label className="block mb-2 font-medium">Title</label>
@@ -322,11 +325,19 @@ export default function EditProperty({ params }: { params: Promise<{ id: string 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full btn btn-primary py-3 text-lg"
+                        className="w-full btn py-3 text-lg"
                     >
-                        {loading ? 'Saving Changes...' : 'Update Property'}
+                        {loading ? (
+                            <span className="flex items-center justify-center gap-2">
+                                <svg className="animate-spin" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                                </svg>
+                                Saving Changes...
+                            </span>
+                        ) : 'Update Property'}
                     </button>
-                </form>
+                    </form>
+                </div>
             </main>
         </div>
     )

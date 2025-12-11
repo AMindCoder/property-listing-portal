@@ -168,6 +168,14 @@ function HomeContent() {
       />
 
       <main className={`container main-layout ${isSidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-visible'}`}>
+        {/* Mobile backdrop - click to close sidebar */}
+        {!isSidebarCollapsed && (
+          <div
+            className="sidebar-backdrop"
+            onClick={() => setIsSidebarCollapsed(true)}
+            aria-hidden="true"
+          />
+        )}
         <Sidebar
           filters={filters}
           areas={areas}
@@ -175,6 +183,7 @@ function HomeContent() {
           onApplyFilters={applyFilters}
           onClearFilters={clearFilters}
           isCollapsed={isSidebarCollapsed}
+          onClose={() => setIsSidebarCollapsed(true)}
         />
 
         <div className="content-area">

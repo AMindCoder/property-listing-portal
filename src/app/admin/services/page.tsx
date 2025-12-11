@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
+import AdminHeader from '@/app/components/AdminHeader';
+import { ServiceIcon } from '@/app/components/icons/ServiceIcons';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,21 +38,17 @@ export default async function AdminServicesPage() {
     const categories = await getCategories();
 
     return (
-        <div style={{ padding: '2rem' }}>
-            <div style={{ marginBottom: '2.5rem' }}>
-                <h1 style={{
-                    fontSize: '2.5rem',
-                    fontWeight: 800,
-                    marginBottom: '0.75rem',
-                    fontFamily: "'Playfair Display', serif",
-                    color: 'var(--text-primary)'
-                }}>
-                    Manage Services
-                </h1>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-                    Manage your construction service galleries and portfolio
-                </p>
-            </div>
+        <div className="page-gradient">
+            <div className="noise-overlay" />
+            <AdminHeader breadcrumbs={[{ label: 'Services' }]} />
+
+            <main className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+                <div style={{ marginBottom: '2.5rem' }}>
+                    <h1 className="page-title">Manage Services</h1>
+                    <p className="page-subtitle">
+                        Manage your construction service galleries and portfolio
+                    </p>
+                </div>
 
             <div className="property-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
                 {categories.map((category) => (
@@ -83,11 +81,10 @@ export default async function AdminServicesPage() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    fontSize: '3rem',
                                     borderBottom: '1px solid var(--border-subtle)'
                                 }}
                             >
-                                🏗️
+                                <ServiceIcon slug={category.slug} size={64} className="text-[var(--copper-400)]" />
                             </div>
                         )}
 
@@ -147,15 +144,18 @@ export default async function AdminServicesPage() {
                 ))}
             </div>
 
-            {categories.length === 0 && (
-                <div className="empty-state">
-                    <div className="empty-icon">🏗️</div>
-                    <h2 className="empty-title">No Categories Found</h2>
-                    <p className="empty-message">
-                        Run the seed script to populate the default service categories.
-                    </p>
-                </div>
-            )}
+                {categories.length === 0 && (
+                    <div className="empty-state">
+                        <div className="empty-icon">
+                            <ServiceIcon slug="foundations-structure" size={48} className="text-[var(--copper-400)]" />
+                        </div>
+                        <h2 className="empty-title">No Categories Found</h2>
+                        <p className="empty-message">
+                            Run the seed script to populate the default service categories.
+                        </p>
+                    </div>
+                )}
+            </main>
         </div>
     );
 }

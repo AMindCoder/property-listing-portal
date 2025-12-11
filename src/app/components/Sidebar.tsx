@@ -14,11 +14,29 @@ interface SidebarProps {
     onFilterChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void
     onApplyFilters: () => void
     onClearFilters: () => void
+    isCollapsed: boolean
+    onClose?: () => void
 }
 
 const PROPERTY_TYPES = ['Plot', 'House', 'Flat', 'Shop', 'Rental']
 
-export default function Sidebar({ filters, areas, onFilterChange, onApplyFilters, onClearFilters, isCollapsed }: SidebarProps & { isCollapsed: boolean }) {
+export default function Sidebar({ filters, areas, onFilterChange, onApplyFilters, onClearFilters, isCollapsed, onClose }: SidebarProps) {
+
+    const handleApply = () => {
+        onApplyFilters()
+        // Close sidebar on mobile after applying filters
+        if (onClose && window.innerWidth < 768) {
+            onClose()
+        }
+    }
+
+    const handleClear = () => {
+        onClearFilters()
+        // Close sidebar on mobile after clearing filters
+        if (onClose && window.innerWidth < 768) {
+            onClose()
+        }
+    }
     return (
         <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
             <div className={`filter-section ${isCollapsed ? 'hidden-content' : ''}`}>
@@ -98,10 +116,10 @@ export default function Sidebar({ filters, areas, onFilterChange, onApplyFilters
                 </div>
 
                 <div className="flex gap-2">
-                    <button className="btn btn-secondary flex-1" onClick={onClearFilters}>
+                    <button className="btn btn-secondary flex-1" onClick={handleClear}>
                         Clear
                     </button>
-                    <button className="btn btn-primary flex-1" onClick={onApplyFilters}>
+                    <button className="btn btn-primary flex-1" onClick={handleApply}>
                         Apply
                     </button>
                 </div>
