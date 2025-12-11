@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
+import { getFeatureFlags } from '@/lib/feature-flags'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,10 +14,22 @@ export async function GET() {
                         title: true,
                         location: true
                     }
+                },
+                reminder: {
+                    select: {
+                        id: true,
+                        scheduledAt: true,
+                        sent: true
+                    }
                 }
             }
         })
-        return NextResponse.json(leads)
+
+        // Include feature flags in response for client-side feature toggling
+        return NextResponse.json({
+            leads,
+            features: getFeatureFlags()
+        })
     } catch (error) {
         console.error('Error fetching leads:', error)
         return NextResponse.json({ error: 'Failed to fetch leads' }, { status: 500 })
